@@ -1,0 +1,371 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+
+<h:head></h:head>
+<body>
+	<ui:composition template="mainlayout.xhtml">
+		<ui:define name="content">
+			<p:blockUI widgetVar="blockFuelPanel" block="fuelinputpanel">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI trigger=":centerform:fuelsavebtn" block="fuelinputpanel">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI trigger=":centerform:fuelrefreshbtn"
+				block="fuelinputpanel">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI widgetVar="blockServicePanel" block="serviceinputpanel">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI trigger=":centerform:servicesavebtn"
+				block="serviceinputpanel">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI trigger=":centerform:servicerefreshbtn"
+				block="serviceinputpanel">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI widgetVar="blockPurposePanel" block="purposeinputpanel">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI trigger=":centerform:purposesavebtn"
+				block="purposeinputpanel">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI trigger=":centerform:purposerefreshbtn"
+				block="purposeinputpanel">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+
+			<p:blockUI widgetVar="blockParkPanel" block="parkinputpanel">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI trigger=":centerform:parksavebtn" block="parkinputpanel">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI trigger=":centerform:parkrefreshbtn"
+				block="parkinputpanel">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:panel header="ข้อมูลอื่นๆ">
+				<p:fieldset legend="ประเภทเชื้อเพลิง" toggleable="true"
+					collapsed="true">
+					<h:panelGroup id="fueltablecontainer">
+						<p:dataTable style="width:60%;float:left" id="fuellist"
+							value="#{adminEtcManager.fuelList}" var="fuel" paginator="true"
+							paginatorPosition="bottom" paginatorAlwaysVisible="false"
+							rows="10" rowIndexVar="rowNo"
+							rowStyleClass="#{fuel.id eq adminEtcManager.editFuel.id ? 'rowhilight':null}">
+							<p:column>
+								<h:outputText value="#{rowNo+1}" />
+							</p:column>
+							<p:column headerText="ชื่อเชื้อเพลิง" style="width:30%">
+								<h:outputText value="#{fuel.name}" />
+							</p:column>
+							<p:column headerText="คำอธิบาย" style="width:55%">
+								<h:outputText value="#{fuel.description}" />
+							</p:column>
+							<p:column style="text-align:center;width:15%">
+								<p:commandButton title="แก้ไข" icon="ui-icon-pencil"
+									update=":centerform:fuelinputgrid, :centerform:fueltablecontainer"
+									process="@this" onstart="blockFuelPanel.show()"
+									oncomplete="blockFuelPanel.hide()"
+									style="width:16px;height:16px">
+									<f:setPropertyActionListener
+										target="#{adminEtcManager.editFuel}" value="#{fuel}" />
+								</p:commandButton>
+								<p:commandButton title="ลบ" icon="ui-icon-trash"
+									style="margin-left:3px;width:16px;height:16px" process="@this"
+									onclick="showDeleteDialogFuelType()"
+									update=":centerform:fueltablecontainer">
+									<f:setPropertyActionListener
+										target="#{adminEtcManager.editFuel}" value="#{fuel}" />
+								</p:commandButton>
+							</p:column>
+						</p:dataTable>
+					</h:panelGroup>
+					<p:panel style="width:35%;float:left;margin-left:30px"
+						header="ข้อมูลประเภทเชื้อเพลิง" id="fuelinputpanel">
+						<h:panelGrid columns="2" cellpadding="3" id="fuelinputgrid">
+							<h:outputText value="ชื่อเชื้อเพลิง:" />
+							<p:inputText value="#{adminEtcManager.editFuel.name}" size="40"/>
+							<h:outputText value="คำอธิบาย:" />
+							<p:inputTextarea value="#{adminEtcManager.editFuel.description}"
+								autoResize="false" style="width:200px;height:80px" />
+						</h:panelGrid>
+						<p:separator />
+						<h:panelGrid columns="2" width="160">
+							<p:commandButton value="บันทึก"
+								action="#{adminEtcManager.validateFuel()}"
+								update="fuellist, fuelinputgrid" process="@this, fuelinputgrid"
+								id="fuelsavebtn" icon="ui-icon-disk" />
+							<p:commandButton value="ล้างค่า"
+								action="#{adminEtcManager.refreshData()}"
+								update="fuelinputgrid, fueltablecontainer" process="@this"
+								id="fuelrefreshbtn" icon="ui-icon-refresh" />
+						</h:panelGrid>
+					</p:panel>
+				</p:fieldset>
+				<p:spacer height="10" />
+				<p:fieldset legend="ประเภทการให้บริการ" toggleable="true"
+					collapsed="true">
+					<h:panelGroup id="servicetablecontainer">
+						<p:dataTable style="width:60%;float:left" id="servicelist"
+							value="#{adminEtcManager.serviceList}" var="service"
+							paginator="true" paginatorAlwaysVisible="false"
+							paginatorPosition="bottom" rows="10" rowIndexVar="rowNo"
+							rowStyleClass="#{service.id eq adminEtcManager.editService.id ? 'rowhilight':null}">
+							<p:column>
+								<h:outputText value="#{rowNo+1}" />
+							</p:column>
+							<p:column headerText="ประเภทการให้บริการ" style="width:30%">
+								<h:outputText value="#{service.name}" />
+							</p:column>
+							<p:column headerText="คำอธิบาย" style="width:55%">
+								<h:outputText value="#{service.description}" />
+							</p:column>
+							<p:column style="text-align:center;width:15%">
+								<p:commandButton title="แก้ไข" icon="ui-icon-pencil"
+									update=":centerform:serviceinputgrid, :centerform:servicetablecontainer"
+									process="@this" onstart="blockServicePanel.show()"
+									oncomplete="blockServicePanel.hide()"
+									style="width:16px;height:16px">
+									<f:setPropertyActionListener
+										target="#{adminEtcManager.editService}" value="#{service}" />
+								</p:commandButton>
+								<p:commandButton title="ลบ" icon="ui-icon-trash"
+									style="margin-left:3px;width:16px;height:16px" process="@this"
+									onclick="showDeleteDialogServiceType()"
+									update=":centerform:servicetablecontainer">
+									<f:setPropertyActionListener
+										target="#{adminEtcManager.editService}" value="#{service}" />
+								</p:commandButton>
+							</p:column>
+						</p:dataTable>
+					</h:panelGroup>
+					<p:panel style="width:35%;float:left;margin-left:30px"
+						header="ข้อมูลประเภทการให้บริการ" id="serviceinputpanel">
+						<h:panelGrid columns="2" cellpadding="3" id="serviceinputgrid">
+							<h:outputText value="ประเภทการให้บริการ:" />
+							<p:inputText value="#{adminEtcManager.editService.name}" size="40"/>
+							<h:outputText value="คำอธิบาย:" />
+							<p:inputTextarea
+								value="#{adminEtcManager.editService.description}"
+								autoResize="false" style="width:200px;height:80px" />
+						</h:panelGrid>
+						<p:separator />
+						<h:panelGrid columns="2" width="160">
+							<p:commandButton value="บันทึก" icon="ui-icon-disk"
+								action="#{adminEtcManager.validateServiceType()}"
+								update="servicelist, serviceinputgrid"
+								process="@this, serviceinputgrid" id="servicesavebtn" />
+							<p:commandButton value="ล้างค่า" icon="ui-icon-refresh"
+								action="#{adminEtcManager.refreshData()}"
+								update="serviceinputgrid, servicetablecontainer" process="@this"
+								id="servicerefreshbtn" />
+						</h:panelGrid>
+					</p:panel>
+				</p:fieldset>
+				<p:spacer height="10" />
+				<p:fieldset legend="วัตถุประสงค์" toggleable="true" collapsed="true">
+					<h:panelGroup id="purposetablecontainer">
+						<p:dataTable style="width:60%;float:left" id="purposelist"
+							value="#{adminEtcManager.purposeList}" var="purpose"
+							paginator="true" paginatorAlwaysVisible="false"
+							paginatorPosition="bottom" rows="10" rowIndexVar="rowNo"
+							rowStyleClass="#{purpose.id eq adminEtcManager.editPurpose.id ? 'rowhilight':null}">
+							<p:column>
+								<h:outputText value="#{rowNo+1}" />
+							</p:column>
+							<p:column headerText="วัตถุประสงค์" style="width:30%">
+								<h:outputText value="#{purpose.name}" />
+							</p:column>
+							<p:column headerText="คำอธิบาย" style="width:55%">
+								<h:outputText value="#{purpose.description}" />
+							</p:column>
+							<p:column style="text-align:center;width:15%">
+								<p:commandButton title="แก้ไข" icon="ui-icon-pencil"
+									update=":centerform:purposeinputgrid, :centerform:purposetablecontainer"
+									process="@this" onstart="blockPurposePanel.show()"
+									oncomplete="blockPurposePanel.hide()"
+									style="width:16px;height:16px">
+									<f:setPropertyActionListener
+										target="#{adminEtcManager.editPurpose}" value="#{purpose}" />
+								</p:commandButton>
+								<p:commandButton title="ลบ" icon="ui-icon-trash"
+									style="margin-left:3px;width:16px;height:16px" process="@this"
+									onclick="showDeleteDialogPurpose()"
+									update=":centerform:purposetablecontainer">
+									<f:setPropertyActionListener
+										target="#{adminEtcManager.editPurpose}" value="#{purpose}" />
+								</p:commandButton>
+							</p:column>
+						</p:dataTable>
+					</h:panelGroup>
+					<p:panel style="width:35%;float:left;margin-left:30px"
+						header="ข้อมูลวัตถุประสงค์" id="purposeinputpanel">
+						<h:panelGrid columns="2" cellpadding="3" id="purposeinputgrid">
+							<h:outputText value="มีความสำคัญ:" />
+							<p:selectBooleanCheckbox
+								value="#{adminEtcManager.editPurpose.prior}" />
+							<h:outputText value="วัตถุประสงค์:" />
+							<p:inputText value="#{adminEtcManager.editPurpose.name}" size="40"/>
+							<h:outputText value="คำอธิบาย:" />
+							<p:inputTextarea
+								value="#{adminEtcManager.editPurpose.description}"
+								autoResize="false" style="width:200px;height:80px" />
+						</h:panelGrid>
+						<p:separator />
+						<h:panelGrid columns="2" width="160">
+							<p:commandButton value="บันทึก" icon="ui-icon-disk"
+								action="#{adminEtcManager.validatePurpose()}"
+								update="purposelist, purposeinputgrid"
+								process="@this, purposeinputgrid" id="purposesavebtn" />
+							<p:commandButton value="ล้างค่า" icon="ui-icon-refresh"
+								action="#{adminEtcManager.refreshData()}"
+								update="purposeinputgrid, purposetablecontainer" process="@this"
+								id="purposerefreshbtn" />
+						</h:panelGrid>
+					</p:panel>
+				</p:fieldset>
+				<p:spacer height="10" />
+				<p:fieldset legend="จุดขึ้นรถ" toggleable="true" collapsed="true">
+					<h:panelGroup id="parktablecontainer">
+						<p:dataTable style="width:60%;float:left" id="parklist"
+							value="#{adminEtcManager.parkList}" var="park" paginator="true"
+							paginatorAlwaysVisible="false" paginatorPosition="bottom"
+							rows="10" rowIndexVar="rowNo"
+							rowStyleClass="#{park.id eq adminEtcManager.editPark.id ? 'rowhilight':null}">
+							<p:column>
+								<h:outputText value="#{rowNo+1}" />
+							</p:column>
+							<p:column headerText="จุดขึ้นรถ" style="width:30%">
+								<h:outputText value="#{park.name}" />
+							</p:column>
+							<p:column headerText="คำอธิบาย" style="width:55%">
+								<h:outputText value="#{park.description}" />
+							</p:column>
+							<p:column style="text-align:center;width:15%">
+								<p:commandButton title="แก้ไข" icon="ui-icon-pencil"
+									update=":centerform:parkinputgrid, :centerform:parktablecontainer"
+									process="@this" onstart="blockParkPanel.show()"
+									oncomplete="blockParkPanel.hide()"
+									style="width:16px;height:16px">
+									<f:setPropertyActionListener
+										target="#{adminEtcManager.editPark}" value="#{park}" />
+								</p:commandButton>
+								<p:commandButton title="ลบ" icon="ui-icon-trash"
+									style="margin-left:3px;width:16px;height:16px" process="@this"
+									onclick="showDeleteDialogParking()"
+									update=":centerform:parktablecontainer">
+									<f:setPropertyActionListener
+										target="#{adminEtcManager.editPark}" value="#{park}" />
+								</p:commandButton>
+							</p:column>
+						</p:dataTable>
+					</h:panelGroup>
+					<p:panel style="width:35%;float:left;margin-left:30px"
+						header="ข้อมูลจุดขึ้นรถ" id="parkinputpanel">
+						<h:panelGrid columns="2" cellpadding="3" id="parkinputgrid">
+							<h:outputText value="จุดขึ้นรถ:" />
+							<p:inputText value="#{adminEtcManager.editPark.name}" size="40"/>
+							<h:outputText value="คำอธิบาย:" />
+							<p:inputTextarea value="#{adminEtcManager.editPark.description}"
+								autoResize="false" style="width:200px;height:80px" />
+						</h:panelGrid>
+						<p:separator />
+						<h:panelGrid columns="2" width="160">
+							<p:commandButton value="บันทึก" icon="ui-icon-disk"
+								action="#{adminEtcManager.validatePark()}"
+								update="parklist, parkinputgrid" process="@this, parkinputgrid"
+								id="parksavebtn" />
+							<p:commandButton value="ล้างค่า" icon="ui-icon-refresh"
+								action="#{adminEtcManager.refreshData()}"
+								update="parkinputgrid, parktablecontainer" process="@this"
+								id="parkrefreshbtn" />
+						</h:panelGrid>
+					</p:panel>
+				</p:fieldset>
+			</p:panel>
+			<p:confirmDialog
+				message="ประเภทเชื้อเพลิงนี้จะถูกลบ คุณต้องการดำเนินการต่อหรือไม่ ?"
+				widgetVar="deleteFuelTypeDialog" header="ลบประเภทเชื้อเพลิง"
+				closable="false">
+				<p:commandButton value="ใช่" update="fuellist, fuelinputgrid"
+					oncomplete="deleteFuelTypeDialog.hide()"
+					action="#{adminEtcManager.deleteFuel()}" id="deletefuelbtn"
+					process="@this" />
+				<p:commandButton value="ยกเลิก" process="@this"
+					action="#{adminEtcManager.deleteFuelDialogClosed()}"
+					update="fueltablecontainer" onclick="deleteFuelTypeDialog.hide()" />
+			</p:confirmDialog>
+			<p:confirmDialog
+				message="ประเภทการให้บริการนี้จะถูกลบ คุณต้องการดำเนินการต่อหรือไม่ ?"
+				widgetVar="deleteServiceTypeDialog" header="ลบประเภทการให้บริการ"
+				closable="false">
+				<p:commandButton value="ใช่" update="servicelist, serviceinputgrid"
+					oncomplete="deleteServiceTypeDialog.hide()"
+					action="#{adminEtcManager.deleteService()}" id="deleteservicebtn"
+					process="@this" />
+				<p:commandButton value="ยกเลิก"
+					action="#{adminEtcManager.deleteServiceDialogClosed()}"
+					process="@this" update="servicetablecontainer"
+					onclick="deleteServiceTypeDialog.hide()" />
+			</p:confirmDialog>
+			<p:confirmDialog
+				message="วัตถุประสงค์นี้จะถูกลบ คุณต้องการดำเนินการต่อหรือไม่ ?"
+				widgetVar="deletePurposeDialog" header="ลบวัตถุประสงค์"
+				closable="false">
+				<p:commandButton value="ใช่" update="purposelist, purposeinputgrid"
+					oncomplete="deletePurposeDialog.hide()"
+					action="#{adminEtcManager.deletePurpose()}" id="deletepurposebtn"
+					process="@this" />
+				<p:commandButton value="ยกเลิก" process="@this"
+					action="#{adminEtcManager.deletePurposeDialogClosed()}"
+					update="purposetablecontainer" onclick="deletePurposeDialog.hide()" />
+			</p:confirmDialog>
+			<p:confirmDialog
+				message="จุดขึ้นรถนี้จะถูกลบ คุณต้องการดำเนินการต่อหรือไม่ ?"
+				widgetVar="deleteParkingDialog" header="ลบจุดขึ้นรถ"
+				closable="false">
+				<p:commandButton value="ใช่" update="parklist, parkinputgrid"
+					oncomplete="deleteParkingDialog.hide()"
+					action="#{adminEtcManager.deletePark()}" id="deleteparkingbtn"
+					process="@this" />
+				<p:commandButton value="ยกเลิก" process="@this"
+					action="#{adminEtcManager.deleteParkDialogClosed()}"
+					update="parktablecontainer" onclick="deleteParkingDialog.hide()" />
+			</p:confirmDialog>
+		</ui:define>
+	</ui:composition>
+</body>
+</html>

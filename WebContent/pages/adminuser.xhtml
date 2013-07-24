@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:func="customfunction.transport">
+
+<h:head>
+	<style type="text/css">
+.verticaltop td {
+	vertical-align: top;
+}
+</style>
+</h:head>
+<body>
+	<ui:composition template="mainlayout.xhtml">
+		<ui:define name="content">
+			<p:blockUI trigger=":centerform:refreshbtn" block="inputpanel">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI trigger=":centerform:savebtn" block="inputpanel">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI widgetVar="blockPanel" block="inputpanel">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:panel header="ข้อมูลผู้ใช้งาน">
+				<p:fieldset legend="จัดการข้อมูลผู้ใช้งาน" toggleable="true">
+					<h:panelGroup id="tablecontainer">
+						<p:dataTable style="width:60%;float:left"
+							value="#{adminUserManager.userList}" var="user" paginator="true"
+							paginatorAlwaysVisible="false" paginatorPosition="bottom"
+							id="userlist" rows="10" rowIndexVar="rowNo"
+							rowStyleClass="#{user.id eq adminUserManager.editUser.id ? 'rowhilight':null}">
+							<p:column>
+								<h:outputText value="#{rowNo+1}" />
+							</p:column>
+							<p:column headerText="ชื่อ-นามสกุล" style="width:45%">
+								<h:outputText value="#{user.personalInfo}" />
+							</p:column>
+							<p:column style="text-align:center;width:10%" headerText="ผอ.">
+								<h:graphicImage url="../resources/images/CheckIconSmall.png"
+									rendered="#{func:containAuthorize(user.authorizations, 'DIRECTOR')}"
+									style="width:16px;height:16px" />
+							</p:column>
+							<p:column style="text-align:center;width:10%" headerText="ผอ.บก.">
+								<h:graphicImage url="../resources/images/CheckIconSmall.png"
+									rendered="#{func:containAuthorize(user.authorizations, 'SERVICE_DIRECTOR')}"
+									style="width:16px;height:16px" />
+							</p:column>
+							<p:column style="text-align:center;width:10%"
+								headerText="เจ้าหน้าที่">
+								<h:graphicImage url="../resources/images/CheckIconSmall.png"
+									rendered="#{func:containAuthorize(user.authorizations, 'SERVICE_STAFF')}"
+									style="width:16px;height:16px" />
+							</p:column>
+							<p:column style="text-align:center;width:10%"
+								headerText="ผู้ดูแลระบบ">
+								<h:graphicImage url="../resources/images/CheckIconSmall.png"
+									rendered="#{func:containAuthorize(user.authorizations, 'ADMIN')}"
+									style="width:16px;height:16px" />
+							</p:column>
+							<p:column style="text-align:center;width:15%">
+								<p:commandButton title="แก้ไข" icon="ui-icon-pencil"
+									update=":centerform:inputgrid, :centerform:tablecontainer"
+									onstart="blockPanel.show()" oncomplete="blockPanel.hide()"
+									action="#{adminUserManager.userSelected()}" process="@this"
+									style="width:16px;height:16px">
+									<f:setPropertyActionListener
+										target="#{adminUserManager.editUser}" value="#{user}" />
+								</p:commandButton>
+								<p:commandButton title="ลบ" icon="ui-icon-trash"
+									style="margin-left:3px;width:16px;height:16px"
+									oncomplete="showDeleteDialogAdminUser()" process="@this"
+									update=":centerform:tablecontainer">
+									<f:setPropertyActionListener
+										target="#{adminUserManager.editUser}" value="#{user}" />
+								</p:commandButton>
+							</p:column>
+						</p:dataTable>
+					</h:panelGroup>
+					<p:panel header="ข้อมูลผู้ใช้งาน"
+						style="width:35%;float:left;margin-left:30px" id="inputpanel">
+						<h:panelGrid columns="2" cellpadding="3" id="inputgrid">
+							<h:outputText value="ชื่อผู้ใช้งาน:" />
+							<p:autoComplete
+								completeMethod="#{travellersAutocomplete.getEmployeeList()}"
+								value="#{adminUserManager.selectedStaff}" process="@this"
+								size="40" scrollHeight="210" var="emp" itemValue="#{emp}"
+								itemLabel="#{emp}" converter="employeeConverter"
+								forceSelection="true" minQueryLength="2">
+								<p:column>
+									<h:graphicImage value="/photo/#{emp.STAFFCODE}" width="50"
+										height="60" />
+								</p:column>
+								<p:column style="width:90%">
+									<h:outputText value="ชื่อ: #{emp}" />
+									<br />
+									<h:outputText
+										value="สังกัด: #{emp.employeeInfos.get(0).DEPFINANCE}" />
+								</p:column>
+							</p:autoComplete>
+							<h:outputText value="อีเมล์:" />
+							<p:inputText value="#{adminUserManager.editUser.email}" size="40"/>
+							<h:outputText value="เบอร์โทรศัพท์มือถือ:" />
+							<p:inputText value="#{adminUserManager.editUser.mobileNumber}" size="40"/>
+							<h:outputText value="หมายเลข IP Address:" />
+							<p:inputText value="#{adminUserManager.editUser.ipAddress}" size="40"/>
+							<h:outputText value="สิทธิการใช้งานระบบ:" />
+							<p:selectManyCheckbox value="#{adminUserManager.selectedRole}"
+								layout="pageDirection">
+								<f:selectItems value="#{adminUserManager.roleSelectItemList}" />
+							</p:selectManyCheckbox>
+						</h:panelGrid>
+						<p:separator />
+						<h:panelGrid columns="2" width="160">
+							<p:commandButton value="บันทึก" icon="ui-icon-disk"
+								action="#{adminUserManager.validateInput()}"
+								update="userlist, inputgrid" id="savebtn" />
+							<p:commandButton value="ล้างค่า" icon="ui-icon-refresh"
+								action="#{adminUserManager.refreshData()}"
+								update="inputgrid, tablecontainer" id="refreshbtn"
+								process="@this" />
+						</h:panelGrid>
+					</p:panel>
+				</p:fieldset>
+			</p:panel>
+			<p:confirmDialog
+				message="ผู้ใช้งานนี้จะถูกลบ คุณต้องการดำเนินการต่อหรือไม่ ?"
+				widgetVar="deleteUserDialog" header="ลบผู้ใช้งาน" closable="false">
+				<p:commandButton value="ใช่" update="userlist, inputgrid"
+					oncomplete="deleteUserDialog.hide()"
+					action="#{adminUserManager.deleteUser()}" id="deletebtn"
+					process="@this" />
+				<p:commandButton value="ยกเลิก"
+					action="#{adminUserManager.deleteDialogClosed()}"
+					update="tablecontainer" onclick="deleteUserDialog.hide()"
+					process="@this" />
+			</p:confirmDialog>
+		</ui:define>
+	</ui:composition>
+</body>
+</html>

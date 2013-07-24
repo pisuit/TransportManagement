@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+		"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+		"http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+	<session-factory>
+<!-- 		<property name="hibernate.session_factory_name">java:/hibernate/session_factory</property> -->
+<!-- 		<property name="hibernate.connection.datasource">java:jdbc/OracleDB/prd/Transport</property> -->
+<!-- 		<property name="hibernate.transaction.factory_class">org.hibernate.transaction.JTATransactionFactory</property> -->
+<!-- 		<property name="jta.UserTransaction">UserTransaction</property> -->
+<!-- 		<property name="hibernate.transaction.manager_lookup_class">org.hibernate.transaction.JBossTransactionManagerLookup</property> -->
+<!-- 		<property name="connection.charSet">tis620</property> -->
+<!-- 		<property name="dialect">org.hibernate.dialect.Oracle10gDialect</property> -->
+<!-- 		<property name="current_session_context_class">jta</property> -->
+<!-- 		<property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property> -->
+
+		<property name="hibernate.connection.driver_class">oracle.jdbc.driver.OracleDriver</property>
+		<property name="hibernate.connection.url">jdbc:oracle:thin:@129.200.9.110:1521:ORCL</property>
+<!-- 		<property name="hibernate.connection.url">jdbc:oracle:thin:@172.16.129.13:1521:ONLINE1</property> -->
+		<property name="hibernate.connection.username">transport</property>
+		<property name="hibernate.connection.password">transport</property>
+		<property name="hibernate.dialect">org.hibernate.dialect.OracleDialect</property>
+		<!-- <property name="hibernate.show_sql">true</property> -->
+		<!-- <property name="hibernate.format_sql">true</property> -->
+		<!-- <property name="use_sql_comments">true</property> -->
+
+		<mapping class="transport.model.Authorization" />
+		<mapping class="transport.model.Car" />
+		<mapping class="transport.model.Company" />
+		<mapping class="transport.model.Contract" />
+		<mapping class="transport.model.Driver" />
+		<mapping class="transport.model.FuelType" />
+		<mapping class="transport.model.ParkingLocation" />
+		<mapping class="transport.model.Purpose" />
+		<mapping class="transport.model.Queue" />
+		<mapping class="transport.model.Reservation" />
+		<mapping class="transport.model.ReservationItem" />
+		<mapping class="transport.model.ServiceType" />
+		<mapping class="transport.model.EmployeeInfo" />
+		<mapping class="transport.model.PersonalInfo" />
+		<mapping class="transport.model.Department" />
+		<mapping class="transport.model.User" />
+		<mapping class="transport.model.Routine" />
+		<mapping class="transport.model.Photo" />
+		<mapping class="transport.model.Rental" />
+	</session-factory>
+</hibernate-configuration>

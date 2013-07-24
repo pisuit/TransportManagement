@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="routine" language="groovy" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="606a5fe1-216e-4d52-82d5-f2173aa8c231">
+	<property name="ireport.zoom" value="2.853116706110048"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="date" class="java.util.Date"/>
+	<field name="parkLocation" class="java.lang.String"/>
+	<field name="startTime" class="java.util.Date"/>
+	<field name="endTime" class="java.util.Date"/>
+	<field name="requester" class="java.lang.String"/>
+	<field name="dep" class="java.lang.String"/>
+	<field name="phone" class="java.lang.String"/>
+	<field name="remark" class="java.lang.String"/>
+	<field name="carName" class="java.lang.String"/>
+	<field name="driverName" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="70" splitType="Stretch">
+			<textField pattern="วันที่ dd/MM/yyyy">
+				<reportElement uuid="feb81a53-174f-4700-ae0d-4d32a982b552" x="323" y="29" width="156" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" isBold="true" isUnderline="true" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{date}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="bb21d05d-8e99-4d51-ac64-da6feaebc30f" x="323" y="9" width="156" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="12" isBold="true" isItalic="false" isUnderline="true" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[ตารางเดินรถ]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="20" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="eb37fe32-5b5b-4a48-bcc5-756499b7693d" x="0" y="0" width="16" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="fc7b8cda-dfe3-4cf2-9567-62f3885bf43d" x="17" y="0" width="121" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[จุดจอด]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="cce40fe6-9968-4251-9dd4-f553f7b919f8" x="138" y="10" width="37" height="10"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="8" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[ไป]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="b19bfb2e-df1d-4a67-ac71-0465fc35b858" x="175" y="10" width="37" height="10"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="8" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[กลับ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="713e2413-0ef6-4121-a27f-5edad0b4882b" x="212" y="0" width="117" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[ผู้ขอ]]></text>
+			</staticText>
+			<line>
+				<reportElement uuid="af5485f2-3d77-448b-a51f-b0e5319daf57" x="137" y="10" width="75" height="1"/>
+			</line>
+			<staticText>
+				<reportElement uuid="d775a306-84ff-430d-82f1-489391a9bd0c" x="330" y="0" width="40" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[สังกัด]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="f9d126bb-9853-408b-a773-447d6649b923" x="138" y="0" width="74" height="10"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="8" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[เวลา]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="30218411-5bb5-481d-b25a-7cd8752d0cc1" x="370" y="0" width="81" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[โทร]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="39455a42-c816-4943-8e85-9c2db90f4a8e" x="454" y="0" width="150" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[หมายเหตุ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="30218411-5bb5-481d-b25a-7cd8752d0cc1" x="604" y="0" width="81" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[ชื่อรถตู้]]></text>
+			</staticText>
+			<line>
+				<reportElement uuid="32e445e4-4de5-4f4f-bb22-42c8433d1743" x="16" y="0" width="1" height="20"/>
+			</line>
+			<line>
+				<reportElement uuid="a954fe12-99a0-466f-8a76-022ab1f882f1" x="801" y="0" width="1" height="20"/>
+			</line>
+			<line>
+				<reportElement uuid="d4db686d-bbc6-4e22-89a6-faeaa88d53fa" x="329" y="0" width="1" height="20"/>
+			</line>
+			<line>
+				<reportElement uuid="3075bdcd-bc0a-4d8e-b93e-70faa2118bf5" x="370" y="0" width="1" height="20"/>
+			</line>
+			<line>
+				<reportElement uuid="ebdf8ccb-9f65-4faa-91eb-1f094c1595a2" x="450" y="0" width="1" height="20"/>
+			</line>
+			<line>
+				<reportElement uuid="861daa98-9a66-44e5-8ad9-5a14b72eb6ac" x="137" y="0" width="1" height="20"/>
+			</line>
+			<line>
+				<reportElement uuid="adc9b263-fd20-4fa6-a1a6-755b1e9e2ad3" x="174" y="10" width="1" height="10"/>
+			</line>
+			<line>
+				<reportElement uuid="9779ab95-a8c7-47a5-9924-0bb6ed713294" x="212" y="0" width="1" height="20"/>
+			</line>
+			<line>
+				<reportElement uuid="70c3b1f6-2ba0-415b-a704-570f643c1938" x="603" y="0" width="1" height="20"/>
+			</line>
+			<staticText>
+				<reportElement uuid="30218411-5bb5-481d-b25a-7cd8752d0cc1" x="685" y="0" width="117" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[ผู้ขับรถ]]></text>
+			</staticText>
+			<line>
+				<reportElement uuid="567db42e-bf6d-48cd-9968-6f7405ff42a1" x="684" y="0" width="1" height="20"/>
+			</line>
+			<rectangle>
+				<reportElement uuid="b1e40f26-dbca-45ab-ae5c-e14765c9a091" mode="Transparent" x="0" y="0" width="802" height="20"/>
+			</rectangle>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField pattern="HH:mm">
+				<reportElement uuid="4493bf78-e5c4-45dd-8a55-a678a443fd9e" x="175" y="0" width="37" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{endTime}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="c0bc5592-ab45-41b8-944c-15aa1149bf98" x="212" y="0" width="117" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{requester}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="d3d53148-edb7-4964-854f-536408962ca0" x="330" y="0" width="40" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{dep}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="3ccecf6e-a30c-4002-9afe-e7e4ea5abc67" x="370" y="0" width="81" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{phone}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="d4342085-8eab-4367-af39-e9196e81c9f1" x="454" y="0" width="150" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{remark}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement uuid="fa850732-5ed7-4b3f-92c5-df6fa46ec4ba" x="0" y="19" width="801" height="1"/>
+			</line>
+			<line>
+				<reportElement uuid="74dd30af-8bfa-4e02-ba65-2b3edc50c3c9" x="0" y="0" width="1" height="20"/>
+			</line>
+			<line>
+				<reportElement uuid="65e4e18f-0d28-48c1-8683-66d7eee66c1a" x="16" y="0" width="1" height="20"/>
+			</line>
+			<line>
+				<reportElement uuid="814560de-d242-47a0-bf35-4ebfdecba788" x="174" y="0" width="1" height="20"/>
+			</line>
+			<line>
+				<reportElement uuid="eb7d2406-d02e-448f-bec1-fefb66319314" x="212" y="0" width="1" height="20"/>
+			</line>
+			<line>
+				<reportElement uuid="76c347c6-76a1-4073-9441-71ae5b594636" x="329" y="0" width="1" height="20"/>
+			</line>
+			<line>
+				<reportElement uuid="e1b488ab-f9f9-4458-a86b-bd022ca6297b" x="450" y="0" width="1" height="20"/>
+			</line>
+			<line>
+				<reportElement uuid="70c3b1f6-2ba0-415b-a704-570f643c1938" x="801" y="0" width="1" height="20"/>
+			</line>
+			<line>
+				<reportElement uuid="a6f79e84-e370-4411-b0af-f8ec03325d67" x="137" y="0" width="1" height="20"/>
+			</line>
+			<textField>
+				<reportElement uuid="4f5ada5a-22c0-4bfe-af05-ff9af2d27135" x="17" y="0" width="120" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{parkLocation}]]></textFieldExpression>
+			</textField>
+			<textField pattern="HH:mm">
+				<reportElement uuid="16b076fd-3d16-491e-9a30-a0627011fd69" x="137" y="0" width="37" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{startTime}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement uuid="76c347c6-76a1-4073-9441-71ae5b594636" x="370" y="0" width="1" height="20"/>
+			</line>
+			<textField pattern="">
+				<reportElement uuid="4493bf78-e5c4-45dd-8a55-a678a443fd9e" x="1" y="0" width="15" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="3ccecf6e-a30c-4002-9afe-e7e4ea5abc67" x="604" y="0" width="81" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{carName}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement uuid="38b4345e-0a81-4a57-ba42-68607baeea0b" x="603" y="0" width="1" height="19"/>
+			</line>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="3ccecf6e-a30c-4002-9afe-e7e4ea5abc67" x="685" y="0" width="117" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{driverName}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement uuid="57caebb3-7000-4529-9f9c-8bf7a4e20100" x="684" y="0" width="1" height="19"/>
+			</line>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

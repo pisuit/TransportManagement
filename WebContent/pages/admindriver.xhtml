@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+
+<h:head></h:head>
+<body>
+	<ui:composition template="mainlayout.xhtml">
+		<ui:define name="content">
+			<p:blockUI trigger=":centerform:refreshbtn" block="inputpanel">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI trigger=":centerform:savebtn" block="inputpanel">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI widgetVar="blockPanel" block="inputpanel">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:panel header="ข้อมูลผู้ขับรถ">
+				<p:fieldset legend="จัดการข้อมูลผู้ขับรถ" toggleable="true">
+					<h:panelGroup id="tablecontainer">
+						<p:dataTable style="width:60%;float:left"
+							value="#{adminDriverManager.driverList}" var="driver"
+							paginator="true" paginatorAlwaysVisible="false"
+							paginatorPosition="bottom" id="driverlist" rows="10"
+							rowIndexVar="rowNo"
+							rowStyleClass="#{driver.id eq adminDriverManager.editDriver.id ? 'rowhilight':null}">
+							<p:column>
+								<h:outputText value="#{rowNo+1}" />
+							</p:column>
+							<p:column headerText="ชื่อ-นามสกุล" style="width:20%">
+								<h:outputText value="#{driver}" />
+							</p:column>
+							<p:column headerText="เบอร์โทรศัพท์" style="width:20%">
+								<h:outputText value="#{driver.phoneNumber}" />
+							</p:column>
+							<p:column headerText="ชื่อบริษัท" style="width:35%">
+								<h:outputText value="#{driver.company.name}" />
+							</p:column>
+							<p:column headerText="วันที่เริ่มขับรถ" style="width:10%">
+								<div style="text-align: right">
+									<h:outputText value="#{driver.dateIssue}">
+										<f:convertDateTime pattern="d/M/yyyy" timeZone="GMT+7" />
+									</h:outputText>
+								</div>
+							</p:column>
+							<p:column style="text-align:center;width:15%">
+								<p:commandButton title="แก้ไข" icon="ui-icon-pencil" style="width:16px;height:16px"
+									update=":centerform:inputgrid, :centerform:tablecontainer"
+									onstart="blockPanel.show()" oncomplete="blockPanel.hide()"
+									action="#{adminDriverManager.driverSelected()}" process="@this">
+									<f:setPropertyActionListener
+										target="#{adminDriverManager.editDriver}" value="#{driver}" />
+								</p:commandButton>
+								<p:commandButton title="ลบ" icon="ui-icon-trash"
+									style="margin-left:3px;width:16px;height:16px"
+									oncomplete="showDeleteDialogAdminDriver()" process="@this"
+									update=":centerform:tablecontainer">
+									<f:setPropertyActionListener
+										target="#{adminDriverManager.editDriver}" value="#{driver}" />
+								</p:commandButton>
+							</p:column>
+						</p:dataTable>
+					</h:panelGroup>
+					<p:panel header="ข้อมูลผู้ขับรถ"
+						style="width:35%;float:left;margin-left:30px" id="inputpanel">
+						<h:panelGrid columns="2" cellpadding="3" id="inputgrid">
+							<h:outputText value="ชื่อ:" />
+							<p:inputText
+								value="#{adminDriverManager.editDriver.thaiFirstName}" size="40"/>
+							<h:outputText value="นามสกุล:" />
+							<p:inputText
+								value="#{adminDriverManager.editDriver.thaiLastName}" size="40"/>
+							<h:outputText value="เบอร์โทรศัพท์:" />
+							<p:inputText value="#{adminDriverManager.editDriver.phoneNumber}" size="40"/>
+							<h:outputText value="เลขที่ใบอนุญาต:" />
+							<p:inputText
+								value="#{adminDriverManager.editDriver.driverLicenseID}" size="40"/>
+							<h:outputText value="วันที่เริ่มขับรถ:" />
+							<p:calendar value="#{adminDriverManager.editDriver.dateIssue}"
+								pattern="d/M/yyyy" navigator="true" />
+							<h:outputText value="บริษัท:" />
+							<p:selectOneMenu value="#{adminDriverManager.selectedCompany}">
+								<f:selectItems
+									value="#{adminDriverManager.companySelectItemList}" />
+							</p:selectOneMenu>
+						</h:panelGrid>
+						<p:separator />
+						<h:panelGrid columns="2" width="160">
+							<p:commandButton value="บันทึก" icon="ui-icon-disk"
+								action="#{adminDriverManager.validateInput()}"
+								update="driverlist, inputgrid" id="savebtn" />
+							<p:commandButton value="ล้างค่า" icon="ui-icon-refresh"
+								action="#{adminDriverManager.refreshData()}"
+								update="inputgrid, tablecontainer" id="refreshbtn"
+								process="@this" />
+						</h:panelGrid>
+					</p:panel>
+				</p:fieldset>
+			</p:panel>
+			<p:confirmDialog
+				message="ผู้ขับรถนี้จะถูกลบ คุณต้องการดำเนินการต่อหรือไม่ ?"
+				widgetVar="deleteDriverDialog" header="ลบผู้ขับรถ" closable="false">
+				<p:commandButton value="ใช่" update="driverlist, inputgrid"
+					oncomplete="deleteDriverDialog.hide()"
+					action="#{adminDriverManager.deleteDriver()}" id="deletebtn"
+					process="@this" />
+				<p:commandButton value="ยกเลิก"
+					action="#{adminDriverManager.deleteDialogClosed()}"
+					update="tablecontainer" onclick="deleteDriverDialog.hide()"
+					process="@this" />
+			</p:confirmDialog>
+		</ui:define>
+	</ui:composition>
+</body>
+</html>

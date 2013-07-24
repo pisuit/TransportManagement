@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+
+<h:head></h:head>
+<body>
+	<ui:composition template="mainlayout.xhtml">
+		<ui:define name="content">
+			<p:blockUI trigger=":centerform:refreshbtn" block="inputpanel">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI trigger=":centerform:savebtn" block="inputpanel">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI widgetVar="blockPanel" block="inputpanel">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:panel header="ข้อมูลรถ">
+				<p:fieldset legend="จัดการข้อมูลรถ" toggleable="true">
+					<h:panelGroup id="tablecontainer">
+						<p:dataTable style="width:60%;float:left"
+							value="#{adminCarManager.carList}" var="car" paginator="true"
+							paginatorAlwaysVisible="false" paginatorPosition="bottom"
+							id="carlist" rows="10" rowIndexVar="rowNo"
+							rowStyleClass="#{car.id eq adminCarManager.editCar.id ? 'rowhilight':null}">
+							<p:column>
+								<h:outputText value="#{rowNo+1}" />
+							</p:column>
+							<p:column headerText="ชื่อรถ" style="width:15%">
+								<h:outputText value="#{car.name}" />
+							</p:column>
+							<p:column headerText="เลขทะเบียน" style="width:5%">
+								<h:outputText value="#{car.registerNumber}" />
+							</p:column>
+							<p:column headerText="ชื่อบริษัท" style="width:25%">
+								<h:outputText value="#{car.company.name}" />
+							</p:column>
+							<p:column headerText="ชื่อผู้ขับรถ" style="width:20%">
+								<h:outputText value="#{car.driver}" />
+							</p:column>
+							<p:column headerText="ประเภทบริการ" style="width:10%">
+								<h:outputText value="#{car.serviceType.name}" />
+							</p:column>
+							<p:column style="text-align:center;width:15%">
+								<p:commandButton title="แก้ไข" icon="ui-icon-pencil"
+									update=":centerform:inputgrid, :centerform:tablecontainer"
+									onstart="blockPanel.show()" oncomplete="blockPanel.hide()"
+									process="@this" action="#{adminCarManager.carSelected()}"
+									style="width:16px;height:16px">
+									<f:setPropertyActionListener
+										target="#{adminCarManager.editCar}" value="#{car}" />
+								</p:commandButton>
+								<p:commandButton title="ลบ" icon="ui-icon-trash"
+									style="margin-left:3px;width:16px;height:16px"
+									oncomplete="showDeleteDialogAdminCar()" process="@this"
+									update=":centerform:tablecontainer">
+									<f:setPropertyActionListener
+										target="#{adminCarManager.editCar}" value="#{car}" />
+								</p:commandButton>
+							</p:column>
+						</p:dataTable>
+					</h:panelGroup>
+					<p:panel header="ข้อมูลรถ"
+						style="width:35%;float:left;margin-left:30px" id="inputpanel">
+						<h:panelGrid columns="2" cellpadding="3" id="inputgrid">
+							<h:outputText value="ชื่อรถ:" />
+							<p:inputText value="#{adminCarManager.editCar.name}" size="40"/>
+							<h:outputText value="ชื่อย่อรถ:" />
+							<p:inputText value="#{adminCarManager.editCar.shortName}" size="40"/>
+							<h:outputText value="เลขทะเบียนรถ:" />
+							<p:inputText value="#{adminCarManager.editCar.registerNumber}" size="40"/>
+							<h:outputText value="จำนวนที่นั่ง:" />
+							<p:inputText value="#{adminCarManager.editCar.seats}" size="40"/>
+							<h:outputText value="ขนาดเครื่องยนต์:" />
+							<p:inputText value="#{adminCarManager.editCar.engine}" size="40" />
+							<h:outputText value="ค่าเช่า:" />
+							<p:inputText value="#{adminCarManager.editCar.rent}" size="40"/>
+							<h:outputText value="เลขไมล์สะสม:" />
+							<p:inputText value="#{adminCarManager.editCar.totalMileage}" size="40"/>
+							<h:outputText value="บริษัท:" />
+							<p:selectOneMenu value="#{adminCarManager.selectedCompany}">
+								<f:selectItems value="#{adminCarManager.companySelectItemList}" />
+							</p:selectOneMenu>
+							<h:outputText value="ผู้ขับรถ:" />
+							<p:selectOneMenu value="#{adminCarManager.selectedDriver}">
+								<f:selectItems value="#{adminCarManager.driverSelectItemList}" />
+							</p:selectOneMenu>
+							<h:outputText value="ประเภทเชื้อเพลิง:" />
+							<p:selectOneMenu value="#{adminCarManager.selectedFuelType}">
+								<f:selectItems value="#{adminCarManager.fuelTypeSelectItemList}" />
+							</p:selectOneMenu>
+							<h:outputText value="ประเภทการให้บริการ:" />
+							<p:selectOneMenu value="#{adminCarManager.selectedServiceType}">
+								<f:selectItems
+									value="#{adminCarManager.serviceTypeSelectItemList}" />
+							</p:selectOneMenu>
+							<h:outputText value="ประเภทรถ:" />
+							<p:selectOneMenu value="#{adminCarManager.selectedCarType}">
+								<f:selectItems value="#{adminCarManager.carTypeSelectItemList}" />
+							</p:selectOneMenu>
+						</h:panelGrid>
+						<p:separator />
+						<h:panelGrid columns="2" width="160">
+							<p:commandButton value="บันทึก" icon="ui-icon-disk"
+								action="#{adminCarManager.validateInput()}"
+								update="carlist, inputgrid" id="savebtn" />
+							<p:commandButton value="ล้างค่า" icon="ui-icon-refresh"
+								action="#{adminCarManager.refreshData()}"
+								update="inputgrid, tablecontainer" id="refreshbtn"
+								process="@this" />
+						</h:panelGrid>
+					</p:panel>
+				</p:fieldset>
+			</p:panel>
+			<p:confirmDialog
+				message="รถนี้จะถูกลบ คุณต้องการดำเนินการต่อหรือไม่ ?"
+				widgetVar="deleteCarDialog" header="ลบรถ" closable="false">
+				<p:commandButton value="ใช่" update="carlist inputgrid"
+					oncomplete="deleteCarDialog.hide()"
+					action="#{adminCarManager.deleteCar()}" id="deletebtn" />
+				<p:commandButton value="ยกเลิก" process="@this"
+					action="#{adminCarManager.deleteDialogClosed()}"
+					update="tablecontainer" onclick="deleteCarDialog.hide()" />
+			</p:confirmDialog>
+		</ui:define>
+	</ui:composition>
+</body>
+</html>

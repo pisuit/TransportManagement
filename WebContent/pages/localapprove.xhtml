@@ -1,0 +1,368 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+
+<h:head>
+
+</h:head>
+<body>
+	<ui:composition template="mainlayout.xhtml">
+		<ui:define name="content">
+			<p:blockUI trigger=":centerform:reservationlist:refreshbutton"
+				block="listpanelgroup">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI block="listpanelgroup" widgetVar="blockListUI">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI block="approvepanelgroup" trigger="approvesavebtn">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI block="notapprovepanelgroup" trigger="notapprovesavebtn">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:panel header="อนุมัติโดยต้นสังกัด">
+				<h:panelGroup id="listpanelgroup" style="float:left;width:100%">
+					<p:fieldset toggleable="true" legend="รายการใบขอรถ"
+						id="datafieldset">
+						<h:panelGroup id="tablecontainer">
+							<p:dataTable value="#{localApproveManager.reservationList}"
+								var="reservation" paginator="true"
+								paginatorAlwaysVisible="false" paginatorPosition="bottom"
+								rows="20" id="reservationlist"
+								rowStyleClass="#{reservation.id eq localApproveManager.selectedReservation.id ? 'rowhilight':null || reservation.formStatus eq 'REQUESTING' ? 'waitforapprove':null || reservation.formStatus eq 'NO_LOCAL_APPROVE' ? 'notapprove':null || reservation.formStatus eq 'LOCAL_APPROVED' ? 'approved':null}">
+								<f:facet name="footer">
+									<div style="text-align: left;">
+										<p:commandButton value="เรียกรายการใหม่"
+											icon="ui-icon-refresh"
+											action="#{localApproveManager.createReservationList}"
+											update="reservationlist" id="refreshbutton" process="@this" />
+									</div>
+								</f:facet>
+								<p:column>
+									<h:graphicImage library="images" name="alert.png"
+										style="width:16px;height:16px" rendered="#{reservation.emergency == true}"/>
+								</p:column>
+								<p:column headerText="เลขที่ใบขอรถ" style="width:5%"
+									filterBy="#{reservation.requestNumber}"
+									filterMatchMode="contains" filterStyle="width:50px">
+									<div style="text-align: right">
+										<h:outputText value="#{reservation.requestNumber}" />
+									</div>
+								</p:column>
+								<p:column headerText="วันที่สร้าง" style="width:5%">
+									<div style="text-align: right">
+										<h:outputText value="#{reservation.createDate}">
+											<f:convertDateTime pattern="d/M/yyyy" timeZone="GMT+7" />
+										</h:outputText>
+									</div>
+								</p:column>
+								<p:column headerText="ผู้ขอ" style="width:15%">
+									<h:outputText value="#{reservation.requester}" />
+								</p:column>
+								<p:column headerText="เบอร์โทร" style="width:5%">
+									<h:outputText value="#{reservation.internalPhone}" />
+								</p:column>
+								<p:column headerText="วันที่ใช้รถ" style="width:5%">
+									<div style="text-align: right">
+										<h:outputText value="#{reservation.endDate}">
+											<f:convertDateTime pattern="d/M/yyyy" timeZone="GMT+7" />
+										</h:outputText>
+									</div>
+								</p:column>
+								<p:column headerText="เวลาที่ใช้รถ" style="width:10%">
+									<div style="text-align: right">
+										<h:outputText value="#{reservation.startTime}">
+											<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+										</h:outputText>
+										<h:outputText value=" - " />
+										<h:outputText value="#{reservation.endTime}">
+											<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+										</h:outputText>
+									</div>
+								</p:column>
+								<p:column headerText="จุดเริ่มต้น" style="width:10%">
+									<h:outputText value="#{reservation.startingPoint}" />
+								</p:column>
+								<p:column headerText="สถานที่ไปปฏิบัติงาน" style="width:10%">
+									<h:outputText value="#{reservation.finishPoint}" />
+								</p:column>
+								<p:column headerText="ประเภทรถ" style="width:10%"
+									filterBy="#{reservation.carType.value}" filterMatchMode="exact"
+									filterOptions="#{localApproveManager.carTypeFilterOptions}">
+									<h:outputText value="#{reservation.carType.value}" />
+								</p:column>
+								<p:column headerText="สถานะ" style="width:10%"
+									filterBy="#{reservation.formStatus.value}"
+									filterMatchMode="exact"
+									filterOptions="#{localApproveManager.formStatusFilterOptions}">
+									<h:outputText value="#{reservation.formStatus.value}" />
+								</p:column>
+								<p:column style="text-align:center;width:15%">
+									<p:commandButton icon="ui-icon-search" title="ข้อมูลเพิ่มเติม"
+										update=":centerform:infodialog, :centerform:tablecontainer"
+										oncomplete="showInfoDialogLocal();blockListUI.hide()"
+										action="#{localApproveManager.createTravellerList}"
+										onstart="blockListUI.show()" process="@this"
+										style="width:16px;height:16px">
+										<f:setPropertyActionListener value="#{reservation}"
+											target="#{localApproveManager.selectedReservation}" />
+									</p:commandButton>
+									<p:commandButton title="อนุมัติ" icon="ui-icon-check"
+										style="margin-left:3px;width:16px;height:16px"
+										update=":centerform:datafieldset"
+										rendered="#{reservation.formStatus == 'REQUESTING' || reservation.formStatus == 'NO_LOCAL_APPROVE' || (reservation.director == null and reservation.emergency)}"
+										onstart="blockListUI.show()"
+										oncomplete="blockListUI.hide();showApproveDialogLocal()"
+										process="@this">
+										<f:setPropertyActionListener
+											target="#{localApproveManager.selectedReservation}"
+											value="#{reservation}" />
+									</p:commandButton>
+									<p:commandButton title="ไม่อนุมัติ" icon="ui-icon-close"
+										style="margin-left:3px;width:16px;height:16px"
+										update=":centerform:datafieldset"
+										rendered="#{reservation.formStatus != 'REQUESTING' and reservation.formStatus != 'NO_LOCAL_APPROVE'}"
+									    disabled="#{reservation.formStatus == 'TRAN_APPROVED' || reservation.formStatus == 'CAR_ASSIGNED' || reservation.formStatus == 'NOT_AVAILABLE' || reservation.formStatus == 'NO_TRAN_APPROVE' || reservation.formStatus == 'CANCELED' || reservation.formStatus == 'FINISHED'}"
+										onstart="blockListUI.show()"
+										oncomplete="blockListUI.hide();showNotApproveDialogLocal()"
+										process="@this">
+										<f:setPropertyActionListener
+											target="#{localApproveManager.selectedReservation}"
+											value="#{reservation}" />
+									</p:commandButton>
+									<p:commandButton title="ไม่อนุมัติ" icon="ui-icon-close"
+										style="margin-left:3px;width:16px;height:16px"
+										update=":centerform:datafieldset"
+										rendered="#{reservation.formStatus == 'REQUESTING'}"
+										onstart="blockListUI.show()"
+										oncomplete="blockListUI.hide();showNotApproveDialogLocal()"
+										process="@this">
+										<f:setPropertyActionListener
+											target="#{localApproveManager.selectedReservation}"
+											value="#{reservation}" />
+									</p:commandButton>
+								</p:column>
+							</p:dataTable>
+						</h:panelGroup>
+					</p:fieldset>
+				</h:panelGroup>
+			</p:panel>
+
+			<p:dialog
+				header="ข้อมูลใบจองรถเลขที่ #{localApproveManager.selectedReservation.requestNumber}"
+				widgetVar="infoDialogLocal" id="infodialog" modal="false"
+				showEffect="clip" hideEffect="clip" resizable="false">
+				<p:ajax event="close" update="tablecontainer"
+					listener="#{localApproveManager.clearData()}" />
+				<h:inputText style="width:0px;height:0px;border:none" />
+				<div style="float: left">
+					<p:fieldset legend="ข้อมูลผู้ขอรถ">
+						<h:panelGrid columns="2">
+							<h:outputText value="ชื่อผู้ขอ:" />
+							<h:outputText
+								value="#{localApproveManager.selectedReservation.requester}" />
+							<h:outputText value="ฝ่าย/กอง:" />
+							<h:outputText
+								value="#{localApproveManager.selectedReservation.requester.employeeInfos[0].DEPPERSON}" />
+							<h:outputText value="โทรศัพท์:" />
+							<h:outputText
+								value="#{localApproveManager.selectedReservation.internalPhone}" />
+						</h:panelGrid>
+					</p:fieldset>
+					<p:spacer height="10" />
+					<p:fieldset legend="วันที่และเวลา">
+						<h:panelGrid columns="2">
+							<h:outputText value="วันที่ต้องการใช้รถ:" />
+							<h:outputText
+								value="#{localApproveManager.selectedReservation.endDate}">
+								<f:convertDateTime pattern="d/M/yyyy" timeZone="GMT+7" />
+							</h:outputText>
+							<h:outputText value="ตั้งแต่เวลา" />
+							<h:outputText
+								value="#{localApproveManager.selectedReservation.startTime}">
+								<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+							</h:outputText>
+							<h:outputText value="ถึงเวลา:" />
+							<h:outputText
+								value="#{localApproveManager.selectedReservation.endTime}">
+								<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+							</h:outputText>
+						</h:panelGrid>
+					</p:fieldset>
+					<p:spacer height="10" />
+					<p:fieldset legend="หมายเหตุ (ผอ.ต้นสังกัด)"
+						rendered="#{localApproveManager.selectedReservation.directorRemark != null}">
+						<h:panelGrid columns="2" styleClass="verticaltop">
+							<h:outputText value="หมายเหตุ:" />
+							<p:inputTextarea
+								value="#{localApproveManager.selectedReservation.directorRemark}"
+								style="border:none;background:#f2f1f1;padding:0px;box-shadow:none;width:180px;height:80px"
+								autoResize="false" />
+						</h:panelGrid>
+					</p:fieldset>
+					<p:spacer height="10" />
+					<p:fieldset legend="หมายเหตุ (ผอ.กองบริการ)"
+						rendered="#{localApproveManager.selectedReservation.serviceRemark != null}">
+						<h:panelGrid columns="2" styleClass="verticaltop">
+							<h:outputText value="หมายเหตุ:" />
+							<p:inputTextarea
+								value="#{localApproveManager.selectedReservation.serviceRemark}"
+								style="border:none;background:#f2f1f1;padding:0px;box-shadow:none;width:180px;height:80px"
+								autoResize="false" />
+						</h:panelGrid>
+					</p:fieldset>
+				</div>
+				<div style="float: left; margin-left: 5px">
+					<p:fieldset legend="ข้อมูลใบจอง">
+						<h:panelGrid columns="2" styleClass="verticaltop">
+							<h:outputText value="เลขที่ใบจอง:" />
+							<h:outputText
+								value="#{localApproveManager.selectedReservation.requestNumber}" />
+								<h:outputText value="เอกสารอ้างอิง:" />
+							<h:outputText
+								value="#{localApproveManager.selectedReservation.refDocument}" />
+							<h:outputText value="สถานะ:" />
+							<h:outputText
+								value="#{localApproveManager.selectedReservation.formStatus.value}" />
+							<h:outputText value="วันที่สร้าง:" />
+							<h:outputText
+								value="#{localApproveManager.selectedReservation.createDate}">
+								<f:convertDateTime pattern="d/M/yyyy" timeZone="GMT+7" />
+							</h:outputText>
+							<h:outputText value="ประเภทรถ:" />
+							<h:outputText
+								value="#{localApproveManager.selectedReservation.carType.value}" />
+							<h:outputText value="เที่ยวเดินรถ:" />
+							<h:outputText
+								value="#{localApproveManager.selectedReservation.travelType.value}" />
+							<h:outputText value="วัตถุประสงค์:" />
+							<h:outputText
+								value="#{localApproveManager.selectedReservation.purpose.name}" />
+							<h:outputText value="จุดขึ้นรถ:" />
+							<h:outputText
+								value="#{localApproveManager.selectedReservation.parkingLocation.name}" />
+							<h:outputText value="จุดเริ่มต้น:" />
+							<h:outputText
+								value="#{localApproveManager.selectedReservation.startingPoint}" />
+							<h:outputText value="สถานที่ไปปฏิบัติงาน:" />
+							<h:outputText
+								value="#{localApproveManager.selectedReservation.finishPoint}" />
+							<h:outputText value="จำนวนรถ:" />
+							<h:outputText
+								value="#{localApproveManager.selectedReservation.numberOfCars}" />
+							<h:outputText value="จำนวนผู้โดยสาร:" />
+							<h:outputText
+								value="#{localApproveManager.selectedReservation.numberOfTraveller}" />
+							<h:outputText value="ผู้ร่วมเดินทาง:"
+								rendered="#{fn:length(localApproveManager.travellerList) != 0}" />
+							<ui:repeat var="name"
+								value="#{localApproveManager.travellerList}"
+								rendered="#{fn:length(localApproveManager.travellerList) != 0}">
+								<h:outputText value="#{name}" />
+								<br />
+							</ui:repeat>
+							<h:outputText value="รายละเอียด:"
+								rendered="#{localApproveManager.selectedReservation.remark != null}" />
+							<p:inputTextarea
+								value="#{localApproveManager.selectedReservation.remark}"
+								rendered="#{localApproveManager.selectedReservation.remark != null}"
+								style="border:none;background:#ffffff;padding:0px;box-shadow:none;width:180px;height:80px"
+								autoResize="false" />
+						</h:panelGrid>
+					</p:fieldset>
+				</div>
+				<div style="float: left; margin-left: 5px">
+					<p:fieldset legend="ข้อมูลรถ"
+						rendered="#{localApproveManager.selectedReservation.carType == 'VAN' and localApproveManager.selectedReservation.formStatus == 'CAR_ASSIGNED'}">
+						<p:dataList styleClass="datalist-noborder"
+							value="#{localApproveManager.selectedReservation.listReservationItem}"
+							var="item" itemType="none" type="definition">
+							<h:outputText value="รอบเวลา: " />
+							<h:outputText value="#{item.startTime}">
+								<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+							</h:outputText>
+							<h:outputText value=" - " />
+							<h:outputText value="#{item.endTime}">
+								<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+							</h:outputText>
+							<f:facet name="description">
+								<p:dataList value="#{item.listQueue}" var="queue"
+									itemType="none" type="definition">
+									<f:facet name="description">
+										<h:outputText value="" />
+									</f:facet>
+									<h:panelGrid columns="2">
+										<h:outputText value="ชื่อรถ:" />
+										<h:outputText value="#{queue.car.name}" />
+										<h:outputText value="เลขทะเบียน:" />
+										<h:outputText value="#{queue.car.registerNumber}" />
+										<h:outputText value="ผู้ขับ:" />
+										<h:outputText value="#{queue.driver}" />
+										<h:outputText value="เบอร์โทรศัพท์:" />
+										<h:outputText value="#{queue.driver.phoneNumber}" />
+									</h:panelGrid>
+									<p:separator />
+								</p:dataList>
+							</f:facet>
+						</p:dataList>
+					</p:fieldset>
+				</div>
+			</p:dialog>
+			<p:dialog modal="true" resizable="false" showEffect="clip"
+				hideEffect="clip" id="approveremarkdialog"
+				widgetVar="approveRemarkDialogLocal" header="อนุมัติ">
+				<p:ajax event="close" update="tablecontainer"
+					listener="#{localApproveManager.clearData()}" />
+				<h:panelGroup id="approvepanelgroup" style="float:left">
+					<h:panelGrid columns="2" cellpadding="3" id="approveremarkgrid">
+						<h:outputText value="เหตุผล:" />
+						<h:inputTextarea
+							value="#{localApproveManager.selectedReservation.directorRemark}"
+							autoResize="false" style="width:250px;height:70px" />
+					</h:panelGrid>
+					<p:separator />
+					<p:commandButton value="บันทึก" icon="ui-icon-disk"
+						action="#{localApproveManager.approveReservation('approve')}"
+						update=":centerform:datafieldset, approveremarkgrid"
+						process="@this, approveremarkgrid"
+						oncomplete="approveRemarkDialogLocal.hide()" id="approvesavebtn" />
+				</h:panelGroup>
+			</p:dialog>
+			<p:dialog modal="true" resizable="false" showEffect="clip"
+				hideEffect="clip" id="notapproveremarkdialog"
+				widgetVar="notApproveRemarkDialogLocal" header="ไม่อนุมัติ">
+				<p:ajax event="close" update="tablecontainer"
+					listener="#{localApproveManager.clearData()}" />
+				<h:panelGroup id="notapprovepanelgroup" style="float:left">
+					<h:panelGrid columns="2" cellpadding="3" id="notapproveremarkgrid">
+						<h:outputText value="เหตุผล:" />
+						<h:inputTextarea
+							value="#{localApproveManager.selectedReservation.directorRemark}"
+							autoResize="false" style="width:250px;height:70px" />
+					</h:panelGrid>
+					<p:separator />
+					<p:commandButton value="บันทึก" icon="ui-icon-disk"
+						action="#{localApproveManager.approveReservation('notapprove')}"
+						update=":centerform:datafieldset, notapproveremarkgrid"
+						process="@this, notapproveremarkgrid"
+						oncomplete="notApproveRemarkDialogLocal.hide()"
+						id="notapprovesavebtn" />
+				</h:panelGroup>
+			</p:dialog>
+		</ui:define>
+	</ui:composition>
+</body>
+</html>

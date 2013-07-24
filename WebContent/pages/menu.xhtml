@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:func="customfunction.transport">
+
+<h:head></h:head>
+<body>
+	<p:menubar>
+		<p:submenu label="สร้างใบขอใช้รถ" icon="ui-icon-document"
+			rendered="#{menuManager.normal}">
+			<p:menuitem value="สร้างใบขอใช้รถแบบปกติ" icon="ui-icon-circle-plus"
+				action="request?faces-redirect=true"
+				rendered="#{menuManager.normal}" />
+			<p:menuitem value="ดูแผนการเดินรถ" icon="ui-icon-calendar"
+				action="viewplan?faces-redirect=true"
+				rendered="#{menuManager.normal}" />
+		</p:submenu>
+		<p:submenu label="อนุมัติใบขอใช้รถ" icon="ui-icon-check"
+			rendered="#{menuManager.director || menuManager.serviceDirector}">
+			<!--<p:menuitem value="อนุมัติโดยต้นสังกัด" icon="ui-icon-circle-check"
+				action="localapprove?faces-redirect=true"
+				rendered="#{menuManager.director}" /> -->
+			<p:menuitem value="อนุมัติโดยกองบริการ" icon="ui-icon-circle-check"
+				action="transportapprove?faces-redirect=true"
+				rendered="#{menuManager.serviceDirector}" />
+		</p:submenu>
+		<p:submenu label="ส่วนเจ้าหน้าที่" icon="ui-icon-gear"
+			rendered="#{menuManager.staff}">
+			<p:menuitem value="สร้างใบขอใช้รถเร่งด่วน" icon="ui-icon-alert"
+				action="emergency?faces-redirect=true"
+				rendered="#{menuManager.staff}" />
+			<p:menuitem value="จัดการใบขอใช้รถ" icon="ui-icon-circle-plus"
+				action="carassign?faces-redirect=true"
+				rendered="#{menuManager.staff}" />
+			<p:menuitem value="กำหนดรถวิ่งประจำวัน" icon="ui-icon-clock"
+				action="routine?faces-redirect=true" rendered="#{menuManager.staff}"/>
+				<p:menuitem value="ดูแผนการเดินรถ" icon="ui-icon-calendar"
+				action="viewplan?faces-redirect=true"
+				rendered="#{menuManager.normal}" />
+		</p:submenu>
+		<p:submenu label="ผู้ดูแลระบบ" icon="ui-icon-wrench"
+			rendered="#{menuManager.admin}">
+			<p:menuitem value="ข้อมูลผู้ใช้" icon="ui-icon-person"
+				action="adminuser?faces-redirect=true" />
+			<p:menuitem value="ข้อมูลผู้ขับรถ" icon="ui-icon-person"
+				action="admindriver?faces-redirect=true" />
+			<p:menuitem value="ข้อมูลบริษัทคู่สัญญา" icon="ui-icon-home"
+				action="admincompany?faces-redirect=true" />
+			<p:menuitem value="ข้อมูลรถ" icon="ui-icon-gear"
+				action="admincar?faces-redirect=true" />
+			<p:menuitem value="ข้อมูลสัญญา" icon="ui-icon-contact"
+				action="admincontract?faces-redirect=true" />
+			<p:menuitem value="ข้อมูลผู้ให้เช่ารถ" icon="ui-icon-key"
+				action="adminrental?faces-redirect=true" />
+			<p:menuitem value="ข้อมูลอื่นๆ" icon="ui-icon-clipboard"
+				action="adminetc?faces-redirect=true" />
+		</p:submenu>
+		<p:menuitem value="ออกจากระบบ" icon="ui-icon-power"
+			action="#{loginManager.logout()}"
+			rendered="#{menuManager.staff || menuManager.admin || menuManager.director || menuManager.serviceDirector}" />
+	</p:menubar>
+</body>
+</html>

@@ -1,0 +1,292 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:func="customfunction.transport">
+<meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE"></meta>
+<h:head>
+	<script type="text/javascript">
+
+	function showInfoDialogRequest(){
+		infoDialogRequest.show(); 
+   	 	document.getElementById("center").style.zIndex= "";
+	}
+	
+	function showDeleteDialogRequest(){
+		deleteReservationConfirmRequest.show(); 
+   	 	document.getElementById("center").style.zIndex= "";
+	}
+
+	function showInfoDialogLocal(){
+		infoDialogLocal.show(); 
+		document.getElementById("center").style.zIndex= "";
+	}
+
+	function showInfoDialogTransport(){
+		infoDialogTransport.show(); 
+   		document.getElementById("center").style.zIndex= "";
+	}
+
+	function showDeleteDialogEmergency(){
+		deleteReservationConfirmEmergency.show(); 
+		document.getElementById("center").style.zIndex= "";
+	}
+
+	function showTravelAssignDialog(){
+		travelDialog.show(); 
+	    document.getElementById("center").style.zIndex= "";
+	}
+	
+	function showInfoDialogAssign(){
+		infoDialogAssign.show(); 
+	    document.getElementById("center").style.zIndex= "";
+	}
+		
+	function showCarAssignDialog(){
+		carAssignDialog.show(); 
+		document.getElementById("center").style.zIndex= "";
+	}
+		
+	function showCloseJobDialog(){
+		closeJobDialog.show(); 
+		document.getElementById("center").style.zIndex= "";
+	}
+
+	function showDeleteDialogAdminDriver(){
+		deleteDriverDialog.show(); 
+		document.getElementById("center").style.zIndex= "";
+	}
+
+	function showDeleteDialogAdminCompany(){
+		deleteCompanyDialog.show(); 
+		document.getElementById("center").style.zIndex= "";
+	}
+
+	function showDeleteDialogAdminContract(){
+		deleteContractDialog.show(); 
+		document.getElementById("center").style.zIndex= "";
+	}
+
+	function showDeleteDialogAdminCar(){
+		deleteCarDialog.show(); 
+		document.getElementById("center").style.zIndex= "";
+	}
+
+	function showDeleteDialogFuelType(){
+		deleteFuelTypeDialog.show(); 
+		document.getElementById("center").style.zIndex= "";
+	}
+
+	function showDeleteDialogServiceType(){
+		deleteServiceTypeDialog.show(); 
+		document.getElementById("center").style.zIndex= "";
+	}
+
+	function showDeleteDialogPurpose(){
+		deletePurposeDialog.show(); 
+		document.getElementById("center").style.zIndex= "";
+	}
+
+	function showDeleteDialogParking(){
+		deleteParkingDialog.show(); 
+		document.getElementById("center").style.zIndex= "";
+	}
+
+	function showDeleteDialogAdminUser(){
+		deleteUserDialog.show();
+		document.getElementById("center").style.zIndex= "";
+	}
+
+	function showNotAvailableDialog(){
+		notAvailableDialog.show();
+		document.getElementById("center").style.zIndex= "";
+	}
+
+	function showNotAvailableDialogStaff(){
+		notAvailableDialogStaff.show();
+		document.getElementById("center").style.zIndex= "";
+	}
+
+	function showNotApproveDialogLocal(){
+		notApproveRemarkDialogLocal.show();
+		document.getElementById("center").style.zIndex= "";
+	}
+
+	function showApproveDialogLocal(){
+		approveRemarkDialogLocal.show();
+		document.getElementById("center").style.zIndex= "";
+	}
+
+	function showNotApproveDialogTransport(){
+		notApproveRemarkDialogTransport.show();
+		document.getElementById("center").style.zIndex= "";
+	}
+
+	function showApproveDialogTransport(){
+		approveRemarkDialogTransport.show();
+		document.getElementById("center").style.zIndex= "";
+	}
+
+	function showDeleteRoutineConfirm(){
+		deleteRoutineConfirm.show();
+		document.getElementById("center").style.zIndex= "";
+	}
+
+	function showcancelReservationConfirmRequest(){
+		cancelReservationConfirmRequest.show();
+		document.getElementById("center").style.zIndex= "";
+	}
+
+	function showDeleteDialogAdminRental(){
+		deleteRentalDialog.show();
+		document.getElementById("center").style.zIndex= "";
+	}
+
+	function showAddTravellerDialog(){
+		addTravellerDialog.show();
+		document.getElementById("center").style.zIndex= "";
+	}
+
+	function showCopyRequestDialog(){
+		copyRequestDialog.show();
+		document.getElementById("center").style.zIndex= "";
+	}
+
+</script>
+	<style type="text/css">
+.ui-layout-north {
+	z-index: 20 !important;
+	overflow: visible !important;;
+}
+
+.ui-layout-north .ui-layout-unit-content {
+	overflow: visible !important;
+}
+
+.ui-widget {
+	font-size: 90% !important;
+}
+
+.ui-widget .ui-widget {
+	font-size: 95% !important;
+}
+
+.ui-panelgrid tr,.ui-panelgrid td {
+	border: 0 !important;
+}
+
+.ui-datatable-odd:hover {
+	background-color: #CCE6FF !important;
+}
+
+.ui-datatable-even:hover {
+	background-color: #CCE6FF !important;
+}
+
+.verticaltop td {
+	vertical-align: top;
+}
+
+.dataList .ui-widget-content {
+	border: none;
+	background: transparent;
+	background-image: none;
+	font-size: 110% !important;
+}
+
+.rowhilight {
+	background-color: #FFDE2E !important;
+}
+
+.waitforapprove {
+	background-color: #FCF8BB !important
+}
+
+.notapprove {
+	background-color: #FFD4D4 !important
+}
+
+.approved {
+	background-color: #C2FFC3 !important
+}
+
+.datalist-noborder .ui-widget-content {
+	font-size: 100% !important;
+	border: none;
+}
+
+.datalist-biggerfont .ui-widget-content {
+	font-size: 110% !important;
+	border: none;
+}
+
+.ui-datatable .ui-column-filter {
+	width: 80px;
+}
+
+.ui-fieldset,.ui-fieldset .ui-fieldset-legend {
+	padding: 0.6em 1em;
+}
+
+.green {
+	background-image: none !important;
+	background-color: green !important;
+}
+
+.red {
+	background-image: none !important;
+	background-color: red !important;
+}
+
+.ui-timeline-event-content {
+	text-align: center !important;
+}
+
+a>img {
+	border: 0;
+}
+
+</style>
+</h:head>
+<body>
+	<script type="text/javascript"
+		src="../resources/script/primeface_locale.js" />
+	<p:layout fullPage="true">
+		<p:growl id="growl" autoUpdate="true" showDetail="true" life="10000" />
+		<p:layoutUnit position="north" size="114">
+			<h:form id="northform">
+				<p:poll listener="#{polling.startPolling()}" interval="1800"
+					process="@this" partialSubmit="true" autoStart="true"
+					global="false"
+					rendered="#{sessionScope.userSession != null and func:containRole(sessionScope.userSession.roleList, 'SERVICE_STAFF')}" />
+				<div>
+					<div id="logo" style="margin-left: 8px">
+						<h:graphicImage library="images" name="multi.png" width="60"
+							height="60" style="position:absolute;bottom:43px" />
+					</div>
+					<div style="margin-left: 80px">
+						<h1>VEHICLE BOOKING SYSTEMS (ระบบจองรถบริษัทฯ)</h1>
+					</div>
+				</div>
+				<ui:include src="menu.xhtml" />
+			</h:form>
+		</p:layoutUnit>
+		<p:layoutUnit position="south" size="30" style="text-align:center">
+			<h:panelGroup layout="block"
+				style="width:100%;position:absolute;left:0px;text-align:left">
+				<h:outputText value="Version 1.0 Build 0001" />
+			</h:panelGroup>
+			<h:outputText
+				value="© Copyrights reserved 2012. Developed by ID.IT"
+				style="font-weight:bold" />
+		</p:layoutUnit>
+		<p:layoutUnit position="center" id="center">
+			<h:form id="centerform">
+				<ui:insert name="content" />
+			</h:form>
+		</p:layoutUnit>
+	</p:layout>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:pe="http://primefaces.org/ui/extensions">
+
+<h:head>
+
+</h:head>
+<body>
+	<ui:composition template="mainlayout.xhtml">
+		<ui:define name="content">
+			<p:blockUI trigger="calendar" block="queuelistpanelgroup">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI trigger="calendar" block="timelinepanelgroup">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:panel header="ดูแผนการเดินรถ">
+				<p:fieldset toggleable="true" legend="ตารางการเดินรถ"
+					id="mainfieldset">
+					<h:outputText
+						value="* หากต้องการโดยสารร่วม (Carpool) กรุณาติดต่อ คุณสุชลฯ / คุณวรพรรธน์ฯ โทรศัพท์ 9214"
+						style="font-size:20px" />
+					<h:panelGrid columns="3" cellpadding="3" id="grid"
+						style="margin-top:15px">
+						<h:outputText value="เลือกวันที่ต้องการดู:" />
+						<p:calendar navigator="true" locale="th"
+							value="#{viewPlanManager.selectedDate}" id="calendar">
+							<p:ajax event="dateSelect"
+								listener="#{viewPlanManager.createQueueList()}"
+								update="queuelist, grid, timeline" process="@this" />
+						</p:calendar>
+						<h:commandLink action="#{viewPlanManager.printReport()}"
+							target="_blank" title="พิมพ์รายงาน" style="margin-left:20px"
+							rendered="#{fn:length(viewPlanManager.queueList) != 0 and menuManager.staff}">
+							<h:graphicImage value="../resources/images/print.png"
+								style="width:30px;height:30px" />
+						</h:commandLink>
+					</h:panelGrid>
+					<p:spacer height="10" />
+					<h:panelGroup id="queuelistpanelgroup"
+						style="float:left;width:100%">
+						<p:dataTable value="#{viewPlanManager.queueList}" var="queue"
+							paginator="true" rows="20" paginatorAlwaysVisible="false"
+							paginatorPosition="bottom" rowIndexVar="rowNo" id="queuelist">
+							<p:column>
+								<h:outputText value="#{rowNo+1}" />
+							</p:column>
+							<p:column headerText="เวลา" style="width:10%">
+								<div style="text-align: right">
+									<h:outputText value="#{queue.reservationItem.startTime}">
+										<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+									</h:outputText>
+									<h:outputText value=" - " />
+									<h:outputText value="#{queue.reservationItem.endTime}">
+										<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+									</h:outputText>
+								</div>
+							</p:column>
+							<p:column headerText="ผู้ขอ" style="width:15%">
+								<h:outputText
+									value="#{queue.reservationItem.reservation.requester}" />
+							</p:column>
+							<p:column headerText="สังกัด" style="width:5%">
+								<h:outputText
+									value="#{queue.reservationItem.reservation.requester.employeeInfos[0].DEPFINANCE}"
+									rendered="#{queue.reservationItem.reservation.requester.employeeInfos[0].DEPFINANCE != 'ฝจ.'}" />
+								<h:outputText
+									value="#{queue.reservationItem.reservation.requester.employeeInfos[0].DEPPERSON}"
+									rendered="#{queue.reservationItem.reservation.requester.employeeInfos[0].DEPFINANCE == 'ฝจ.'}" />
+							</p:column>
+							<p:column headerText="โทร" style="width:5%">
+								<h:outputText
+									value="#{queue.reservationItem.reservation.internalPhone}" />
+							</p:column>
+							<p:column headerText="สถานที่ไปปฏิบัติงาน" style="width:10%">
+								<h:outputText
+									value="#{queue.reservationItem.reservation.finishPoint}" />
+							</p:column>
+							<p:column headerText="หมายเหตุ" style="width:15%">
+								<h:outputText
+									value="#{queue.reservationItem.reservation.remark}" />
+							</p:column>
+							<p:column headerText="จุดจอด" style="width:10%">
+								<h:outputText
+									value="#{queue.reservationItem.reservation.parkingLocation.name}" />
+							</p:column>
+							<p:column headerText="เที่ยวเดินรถ" style="width:10%">
+								<h:outputText
+									value="#{queue.reservationItem.reservation.travelType.value}" />
+							</p:column>
+							<p:column headerText="ชื่อรถตู้" style="width:10%">
+								<h:outputText value="#{queue.car.name}" />
+							</p:column>
+							<p:column headerText="ทะเบียน" style="width:10%">
+								<h:outputText value="#{queue.car.registerNumber}" />
+							</p:column>
+						</p:dataTable>
+					</h:panelGroup>
+				</p:fieldset>
+				<p:spacer height="20" />
+				<p:fieldset legend="กราฟเวลา" toggleable="true"
+					id="timelinefieldset">
+					<h:panelGroup layout="block" id="timelinepanelgroup">
+						<pe:timeline value="#{viewPlanManager.timeline}" eventStyle="box"
+							height="622" axisPosition="bottom" id="timeline" var="event">
+							<h:panelGroup layout="block" style="color:white;font-weight:bold">
+								<h:outputText value="#{event.startDate}">
+									<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+								</h:outputText>
+								<h:outputText value=" - " />
+								<h:outputText value="#{event.endDate}">
+									<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+								</h:outputText>
+							</h:panelGroup>
+						</pe:timeline>
+					</h:panelGroup>
+				</p:fieldset>
+			</p:panel>
+		</ui:define>
+	</ui:composition>
+</body>
+</html>

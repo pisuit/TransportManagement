@@ -1,0 +1,242 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+
+<h:head></h:head>
+<body>
+	<ui:composition template="mainlayout.xhtml">
+		<ui:define name="content">
+			<p:blockUI block="inputfieldset" widgetVar="blockListUI">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI block="inputfieldset" trigger="savebtn">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI block="inputfieldset" trigger="refreshbtn">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI block="listfieldset" trigger="deletebtn">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:panel header="กำหนดรถวิ่งประจำวัน">
+				<p:fieldset legend="รายการรถวิ่งประจำ" toggleable="true"
+					id="listfieldset">
+					<h:panelGroup id="tablecontainer">
+						<p:dataTable value="#{routineManager.routineList}" var="routine"
+							paginator="true" paginatorAlwaysVisible="false"
+							paginatorPosition="bottom" rows="10" rowIndexVar="rowNo"
+							id="routinelist"
+							rowStyleClass="#{routine.id eq routineManager.editRoutine.id ? 'rowhilight':null || routine.id eq routineManager.deletedRoutine.id ? 'rowhilight':null || routine.id eq routineManager.selectedRoutine.id ? 'rowhilight':null}">
+							<p:column>
+								<h:outputText value="#{rowNo+1}" />
+							</p:column>
+							<p:column headerText="จุดจอด" style="width:15%">
+								<h:outputText value="#{routine.parkingLocation.name}" />
+							</p:column>
+							<p:column headerText="เวลา" style="width:10%">
+								<div style="text-align: right">
+									<h:outputText value="#{routine.startTime}">
+										<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+									</h:outputText>
+									<h:outputText value=" - " />
+									<h:outputText value="#{routine.endTime}">
+										<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+									</h:outputText>
+								</div>
+							</p:column>
+							<p:column headerText="ผู้ขอ" style="width:20%">
+								<h:outputText value="#{routine.requester}" />
+							</p:column>
+							<p:column headerText="สังกัด" style="width:5%">
+								<h:outputText
+									value="#{routine.requester.employeeInfos[0].DEPFINANCE}"
+									rendered="#{routine.requester.employeeInfos[0].DEPFINANCE != 'ฝจ.'}" />
+								<h:outputText
+									value="#{routine.requester.employeeInfos[0].DEPPERSON}"
+									rendered="#{routine.requester.employeeInfos[0].DEPFINANCE == 'ฝจ.'}" />
+							</p:column>
+							<p:column headerText="โทร" style="width:5%">
+								<h:outputText value="#{routine.phoneNumber}" />
+							</p:column>
+							<p:column headerText="หมายเหตุ" style="width:30%">
+								<h:outputText value="#{routine.remark}" />
+							</p:column>
+							<p:column style="text-align:center; width:15%">
+								<p:commandButton title="แก้ไข" icon="ui-icon-pencil"
+									process="@this"
+									update=":centerform:inputgrid, :centerform:tablecontainer"
+									action="#{routineManager.routineSelected()}"
+									onstart="blockListUI.show()" oncomplete="blockListUI.hide()"
+									style="width:16px;height:16px">
+									<f:setPropertyActionListener
+										target="#{routineManager.editRoutine}" value="#{routine}" />
+								</p:commandButton>
+								<p:commandButton title="สร้างใบขอรถ" icon="ui-icon-document"
+									style="width:16px;height:16px;margin-left:3px" process="@this"
+									oncomplete="createRequestDialog.show()"
+									update=":centerform:createrequestgrid, :centerform:tablecontainer">
+									<f:setPropertyActionListener
+										target="#{routineManager.selectedRoutine}" value="#{routine}" />
+								</p:commandButton>
+								<p:commandButton title="ลบ" icon="ui-icon-trash"
+									oncomplete="showDeleteRoutineConfirm()"
+									update=":centerform:tablecontainer"
+									style="width:16px;height:16px;margin-left:3px">
+									<f:setPropertyActionListener
+										target="#{routineManager.deletedRoutine}" value="#{routine}" />
+								</p:commandButton>
+							</p:column>
+						</p:dataTable>
+					</h:panelGroup>
+				</p:fieldset>
+				<p:spacer height="20" />
+				<p:fieldset toggleable="true" legend="ข้อมูลรถวิ่งประจำวัน"
+					id="inputfieldset">
+					<h:panelGrid columns="6" cellpadding="3" styleClass="verticaltop"
+						id="inputgrid">
+						<h:outputText value="ฝ่าย/กอง:" />
+						<p:selectOneMenu value="#{routineManager.selectedDep}"
+							style="width:170px">
+							<f:selectItems value="#{routineManager.depSelectItemList}" />
+							<p:ajax listener="#{routineManager.depSelected()}"
+								update="staffselectitemlist" />
+						</p:selectOneMenu>
+						<h:outputText value="ตั้งแต่เวลา:" />
+						<p:calendar value="#{routineManager.editRoutine.startTime}"
+							locale="th" pattern="HH:mm" timeOnly="true" />
+						<h:outputText value="ถึงเวลา:" />
+						<p:calendar value="#{routineManager.editRoutine.endTime}"
+							pattern="HH:mm" timeOnly="true" locale="th" />
+						<h:outputText value="ผู้ขอ:" />
+						<p:selectOneMenu value="#{routineManager.selectedStaff}"
+							style="width:170px" id="staffselectitemlist"
+							disabled="#{routineManager.selectedDep == '0'}">
+							<f:selectItems value="#{routineManager.staffSelectItemList}" />
+						</p:selectOneMenu>
+						<h:outputText value="จุดเริ่มต้น:" />
+						<p:inputText value="#{routineManager.editRoutine.startingPoint}" />
+						<h:outputText value="สถานที่ไปปฏิบัติงาน:" />
+						<p:inputText value="#{routineManager.editRoutine.finishPoint}" />
+						<h:outputText value="เบอร์โทรศัพท์:" />
+						<p:inputText value="#{routineManager.editRoutine.phoneNumber}" />
+						<h:outputText value="ชื่อรถ:" />
+						<p:selectOneMenu value="#{routineManager.selectedCar}"
+							style="width:170px">
+							<f:selectItems value="#{routineManager.carSelectItemList}" />
+						</p:selectOneMenu>
+						<h:outputText value="" />
+						<h:outputText value="" />
+						<h:outputText value="จุดจอดรถ:" />
+						<p:selectOneMenu value="#{routineManager.selectedPark}"
+							style="width:170px">
+							<f:selectItems value="#{routineManager.parkSelectItemList}" />
+						</p:selectOneMenu>
+						<h:outputText value="วัตถุประสงค์:" />
+						<p:selectOneMenu value="#{routineManager.selectedPurpose}"
+							style="width:170px">
+							<f:selectItems value="#{routineManager.purposeSelectItemList}" />
+						</p:selectOneMenu>
+						<h:outputText value="" />
+						<h:outputText value="" />
+						<h:outputText value="ประเภทรถ:" />
+						<p:selectOneRadio value="#{routineManager.selectedCarType}"
+							layout="pageDirection">
+							<f:selectItems value="#{routineManager.carTypeSelectItemList}" />
+						</p:selectOneRadio>
+						<h:outputText value="เที่ยวเดินรถ:" />
+						<p:selectOneRadio value="#{routineManager.selectedTravelType}"
+							layout="pageDirection">
+							<f:selectItems value="#{routineManager.travelTypeSelectItemList}" />
+						</p:selectOneRadio>
+						<h:outputText value="หมายเหตุ:" />
+						<h:panelGroup>
+							<p:inputTextarea autoResize="false"
+								style="width:250px;height:70px"
+								value="#{routineManager.editRoutine.remark}" counter="counter"
+								maxlength="500" counterTemplate="{0} characters remaining." />
+							<br />
+							<h:outputText id="counter" />
+						</h:panelGroup>
+					</h:panelGrid>
+					<p:separator />
+					<h:panelGrid columns="2" width="160">
+						<p:commandButton value="บันทึก" icon="ui-icon-disk"
+							action="#{routineManager.saveRoutine()}"
+							update="routinelist, inputgrid" id="savebtn" />
+						<p:commandButton value="ล้างค่า" icon="ui-icon-refresh"
+							action="#{routineManager.refreshData()}" process="@this"
+							update="inputgrid, tablecontainer" id="refreshbtn" />
+					</h:panelGrid>
+				</p:fieldset>
+			</p:panel>
+			<p:dialog header="สร้างใบขอรถ" widgetVar="createRequestDialog"
+				id="requestdialog" showEffect="clip" hideEffect="clip"
+				resizable="false">
+				<p:ajax event="close" update="tablecontainer"
+					listener="#{routineManager.createRequestDialogClosed()}" />
+				<h:inputText style="width:0px;height:0px;border:none" />
+				<h:panelGrid columns="2" cellpadding="3" id="createrequestgrid">
+					<h:outputText value="วันที่:" />
+					<p:calendar value="#{routineManager.selectedDate}" navigator="true"
+						locale="th" />
+					<h:outputText value="ผู้ร่วมเดินทาง:" />
+					<p:autoComplete value="#{routineManager.selectedTravellers}"
+						completeMethod="#{travellersAutocomplete.getEmployeeList()}"
+						multiple="true" scrollHeight="210" var="emp"
+						converter="employeeConverter" itemLabel="#{emp}"
+						itemValue="#{emp}" process="@this" minQueryLength="2">
+						<p:column>
+							<h:graphicImage value="/photo/#{emp.STAFFCODE}" width="50"
+								height="60" />
+						</p:column>
+						<p:column style="width:90%">
+							<h:outputText value="ชื่อ: #{emp}" />
+							<br />
+							<h:outputText
+								value="สังกัด: #{emp.employeeInfos.get(0).DEPFINANCE}" />
+						</p:column>
+					</p:autoComplete>
+					<h:outputText value="ชื่อรถ:"
+						rendered="#{routineManager.selectedRoutine.car == null}" />
+					<p:selectOneMenu value="#{routineManager.selectedCar2}"
+						style="width:170px"
+						rendered="#{routineManager.selectedRoutine.car == null}">
+						<f:selectItems value="#{routineManager.carSelectItemList}" />
+					</p:selectOneMenu>
+				</h:panelGrid>
+				<p:separator />
+				<h:panelGrid columns="2">
+					<p:commandButton value="บันทึก" icon="ui-icon-disk"
+						process="@this, createrequestgrid"
+						action="#{routineManager.saveRequestForm()}"
+						oncomplete="createRequestDialog.hide()" />
+				</h:panelGrid>
+			</p:dialog>
+			<p:confirmDialog
+				message="ข้อมูลรถวิ่งประจำวันนี้จะถูกลบ คุณต้องการดำเนินการต่อหรือไม่ ?"
+				widgetVar="deleteRoutineConfirm" header="ลบข้อมูลรถวิ่งประจำวัน"
+				closable="false">
+				<p:commandButton value="ใช่" update="routinelist"
+					oncomplete="deleteRoutineConfirm.hide()"
+					action="#{routineManager.deleteRoutine()}" id="deletebtn"
+					process="@this" />
+				<p:commandButton value="ยกเลิก" process="@this"
+					onclick="deleteRoutineConfirm.hide()"
+					action="#{routineManager.deleteCancleButtonClicked()}"
+					update="tablecontainer" />
+			</p:confirmDialog>
+		</ui:define>
+	</ui:composition>
+</body>
+</html>

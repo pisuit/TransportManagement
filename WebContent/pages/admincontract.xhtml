@@ -1,0 +1,130 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+
+<h:head></h:head>
+<body>
+	<ui:composition template="mainlayout.xhtml">
+		<ui:define name="content">
+			<p:blockUI trigger=":centerform:refreshbtn" block="inputpanel">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI trigger=":centerform:savebtn" block="inputpanel">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI widgetVar="blockPanel" block="inputpanel">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:panel header="ข้อมูลสัญญา">
+				<p:fieldset legend="จัดการข้อมูลสัญญา" toggleable="true">
+					<h:panelGroup id="tablecontainer">
+						<p:dataTable style="width:60%;float:left"
+							value="#{adminContractManager.contractList}" var="contract"
+							paginator="true" paginatorAlwaysVisible="false"
+							paginatorPosition="bottom" id="contractlist" rows="10"
+							rowIndexVar="rowNo"
+							rowStyleClass="#{contract.id eq adminContractManager.editContract.id ? 'rowhilight':null}">
+							<p:column>
+								<h:outputText value="#{rowNo+1}" />
+							</p:column>
+							<p:column headerText="เลขที่" style="width:20%">
+								<h:outputText value="#{contract.code}" />
+							</p:column>
+							<p:column headerText="ชื่อสัญญา" style="width:30%">
+								<h:outputText value="#{contract.name}" />
+							</p:column>
+							<p:column headerText="ระยะเวลา" style="width:5%">
+								<div style="text-align: right">
+									<h:outputText value="#{contract.term}" />
+								</div>
+							</p:column>
+							<p:column headerText="วันที่ตกลงสัญญา" style="width:5%">
+								<div style="text-align: right">
+									<h:outputText value="#{contract.signDate}">
+										<f:convertDateTime pattern="d/M/yyyy" timeZone="GMT+7" />
+									</h:outputText>
+								</div>
+							</p:column>
+							<p:column headerText="ราคา" style="width:15%">
+								<div style="text-align: right">
+									<h:outputText value="#{contract.price}">
+										<f:convertNumber pattern="#,##0.00" />
+									</h:outputText>
+								</div>
+							</p:column>
+							<p:column style="text-align:center;width:15%">
+								<p:commandButton title="แก้ไข" icon="ui-icon-pencil"
+									update=":centerform:inputgrid, :centerform:tablecontainer"
+									onstart="blockPanel.show()" oncomplete="blockPanel.hide()"
+									process="@this" style="width:16px;height:16px">
+									<f:setPropertyActionListener
+										target="#{adminContractManager.editContract}"
+										value="#{contract}" />
+										</p:commandButton>
+									<p:commandButton title="ลบ" icon="ui-icon-trash"
+										style="margin-left:3px;width:16px;height:16px"
+										oncomplete="showDeleteDialogAdminContract()" process="@this"
+										update=":centerform:tablecontainer">
+										<f:setPropertyActionListener
+											target="#{adminContractManager.editContract}"
+											value="#{contract}" />
+									</p:commandButton>
+							</p:column>
+						</p:dataTable>
+					</h:panelGroup>
+					<p:panel header="ข้อมูลสัญญา"
+						style="width:35%;float:left;margin-left:30px" id="inputpanel">
+						<h:panelGrid columns="2" cellpadding="3" id="inputgrid">
+							<h:outputText value="เลขที่สัญญา:" />
+							<p:inputText value="#{adminContractManager.editContract.code}" size="40"/>
+							<h:outputText value="ชื่อสัญญา:" />
+							<p:inputText value="#{adminContractManager.editContract.name}" size="40" />
+							<h:outputText value="ระยะเวลา(ปี):" />
+							<p:inputText value="#{adminContractManager.editContract.term}" size="40"/>
+							<h:outputText value="วันที่ตกลงสัญญา:" />
+							<p:calendar value="#{adminContractManager.editContract.signDate}"
+								pattern="d/M/yyyy" navigator="true" />
+							<h:outputText value="ราคา:" />
+							<p:inputText value="#{adminContractManager.editContract.price}" size="40"/>
+							<h:outputText value="หมายเหตุ:" />
+							<p:inputTextarea
+								value="#{adminContractManager.editContract.remark}"
+								autoResize="false" style="width:200px;height:80px" />
+						</h:panelGrid>
+						<p:separator />
+						<h:panelGrid columns="2" width="160">
+							<p:commandButton value="บันทึก" icon="ui-icon-disk"
+								action="#{adminContractManager.validateInput()}"
+								update="contractlist, inputgrid" id="savebtn" />
+							<p:commandButton value="ล้างค่า" icon="ui-icon-refresh"
+								action="#{adminContractManager.refreshData()}"
+								update="inputgrid, tablecontainer" id="refreshbtn"
+								process="@this" />
+						</h:panelGrid>
+					</p:panel>
+				</p:fieldset>
+			</p:panel>
+			<p:confirmDialog
+				message="สัญญานี้จะถูกลบ คุณต้องการดำเนินการต่อหรือไม่ ?"
+				widgetVar="deleteContractDialog" header="ลบสัญญา" closable="false">
+				<p:commandButton value="ใช่" update="contractlist, inputgrid"
+					oncomplete="deleteContractDialog.hide()"
+					action="#{adminContractManager.deleteContract()}" id="deletebtn"
+					process="@this" />
+				<p:commandButton value="ยกเลิก" process="@this"
+					action="#{adminContractManager.deleteDialogClosed()}"
+					update="tablecontainer" onclick="deleteContractDialog.hide()" />
+			</p:confirmDialog>
+		</ui:define>
+	</ui:composition>
+</body>
+</html>

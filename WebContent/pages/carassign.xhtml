@@ -1,0 +1,963 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:func="customfunction.transport">
+
+<h:head>
+</h:head>
+<body>
+	<ui:composition template="mainlayout.xhtml">
+		<ui:define name="content">
+			<p:blockUI trigger=":centerform:reservationlist:refreshbutton"
+				block="listpanelgroup">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI trigger=":centerform:assignedlist:refreshbutton2"
+				block="assignedlistpanelgroup">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI trigger="itemsavebutton" block="firstpanelgroup">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI trigger="assignfinishbtn" block="firstpanelgroup">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI block="listpanelgroup" widgetVar="blockListUI">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI block="assignedlistpanelgroup" widgetVar="blockListUI2">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:poll interval="60" process="@this" partialSubmit="true"
+				update="reservationlist"
+				listener="#{carAssignManager.createReservationList()}" />
+			<p:panel header="จัดการใบขอใช้รถ">
+				<h:panelGroup id="listpanelgroup" style="float:left;width:100%">
+					<p:fieldset legend="รายการใบขอที่ยังไม่ได้จัดรถ" toggleable="true"
+						id="reservationlistfieldset">
+						<h:panelGroup id="tablecontainer1">
+							<p:dataTable value="#{carAssignManager.reservationList}"
+								var="reservation" rows="10" paginator="true"
+								paginatorAlwaysVisible="false" paginatorPosition="bottom"
+								id="reservationlist"
+								rowStyleClass="#{reservation.id eq carAssignManager.selectedReservation.id ? 'rowhilight':null || reservation.id eq carAssignManager.editReservation.id ? 'rowhilight':null}">
+								<f:facet name="footer">
+									<div style="text-align: left;">
+										<p:commandButton value="เรียกรายการใหม่"
+											icon="ui-icon-refresh"
+											action="#{carAssignManager.createReservationList}"
+											update="reservationlist" id="refreshbutton" process="@this" />
+									</div>
+								</f:facet>
+								<p:column>
+									<h:graphicImage library="images" name="alert.png"
+										style="width:16px;height:16px"
+										rendered="#{reservation.emergency == true}" />
+								</p:column>
+								<p:column headerText="เลขที่ใบขอรถ" style="width:5%"
+									filterBy="#{reservation.requestNumber}"
+									filterMatchMode="contains" filterStyle="width:50px">
+									<div style="text-align: right">
+										<h:outputText value="#{reservation.requestNumber}" />
+									</div>
+								</p:column>
+								<p:column headerText="วันที่สร้าง" style="width:5%">
+									<div style="text-align: right">
+										<h:outputText value="#{reservation.createDate}">
+											<f:convertDateTime pattern="d/M/yyyy" timeZone="GMT+7" />
+										</h:outputText>
+									</div>
+								</p:column>
+								<p:column headerText="ผู้ขอ" style="width:20%">
+									<h:outputText value="#{reservation.requester}" />
+								</p:column>
+								<p:column headerText="เบอร์โทร" style="width:5%">
+									<h:outputText value="#{reservation.internalPhone}" />
+								</p:column>
+								<p:column headerText="วันที่ใช้รถ" style="width:5%">
+									<div style="text-align: right">
+										<h:outputText value="#{reservation.endDate}">
+											<f:convertDateTime pattern="d/M/yyyy" timeZone="GMT+7" />
+										</h:outputText>
+									</div>
+								</p:column>
+								<p:column headerText="เวลาที่ใช้รถ" style="width:10%">
+									<div style="text-align: right">
+										<h:outputText value="#{reservation.startTime}">
+											<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+										</h:outputText>
+										<h:outputText value=" - " />
+										<h:outputText value="#{reservation.endTime}">
+											<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+										</h:outputText>
+									</div>
+								</p:column>
+								<p:column headerText="จุดเริ่มต้น" style="width:10%">
+									<h:outputText value="#{reservation.startingPoint}" />
+								</p:column>
+								<p:column headerText="สถานที่ไปปฏิบัติงาน" style="width:10%">
+									<h:outputText value="#{reservation.finishPoint}" />
+								</p:column>
+								<p:column headerText="ประเภทรถ" style="width:10%"
+									filterBy="#{reservation.carType.value}" filterMatchMode="exact"
+									filterOptions="#{carAssignManager.carTypeFilterOptionsTable1}">
+									<h:outputText value="#{reservation.carType.value}" />
+								</p:column>
+								<p:column style="text-align:center;width:15%">
+									<p:commandButton title="ข้อมูลเพิ่มเติม" icon="ui-icon-search"
+										oncomplete="showInfoDialogAssign();blockListUI.hide();"
+										update=":centerform:infodialog, :centerform:tablecontainer1, :centerform:tablecontainer2"
+										action="#{carAssignManager.createTravellerList}"
+										onstart="blockListUI.show();" style="width:16px;height:16px">
+										<f:setPropertyActionListener value="#{reservation}"
+											target="#{carAssignManager.selectedReservation}" />
+									</p:commandButton>
+									<p:commandButton title="จัดรถ"
+										style="margin-left:3px;width:16px;height:16px"
+										icon="ui-icon-transferthick-e-w"
+										oncomplete="showTravelAssignDialog();blockListUI.hide();"
+										action="#{carAssignManager.createReservationItemList}"
+										update=":centerform:secondpanelgroup, :centerform:dialogheader, :centerform:tablecontainer1, :centerform:assigninfopanelgroup"
+										onstart="blockListUI.show();" process="@this">
+										<f:setPropertyActionListener value="#{reservation}"
+											target="#{carAssignManager.editReservation}" />
+									</p:commandButton>
+									<p:commandButton title="คัดลอกใบขอรถ" icon="ui-icon-copy"
+										style="margin-left:3px;width:16px;height:16px"
+										onstart="blockListUI.show();"
+										oncomplete="blockListUI.hide();showCopyRequestDialog()"
+										process="@this" update=":centerform:copyrequestdialog"
+										rendered="#{reservation.master == null}">
+										<f:setPropertyActionListener value="#{reservation}"
+											target="#{carAssignManager.editReservation}" />
+									</p:commandButton>
+									<p:commandButton title="ลบใบขอรถ" icon="ui-icon-trash"
+										style="margin-left:3px;width:16px;height:16px"
+										onstart="blockListUI.show();" oncomplete="blockListUI.hide()"
+										process="@this" update=":centerform:tablecontainer1"
+										rendered="#{reservation.master != null}"
+										action="#{carAssignManager.deleteReservation()}">
+										<f:setPropertyActionListener value="#{reservation}"
+											target="#{carAssignManager.editReservation}" />
+									</p:commandButton>
+								</p:column>
+							</p:dataTable>
+						</h:panelGroup>
+					</p:fieldset>
+				</h:panelGroup>
+				<p:separator style="border:0" />
+				<p:spacer height="20" />
+				<h:panelGroup id="assignedlistpanelgroup"
+					style="float:left;width:100%">
+					<p:fieldset legend="รายการใบขอที่จัดรถแล้ว" toggleable="true">
+						<h:panelGroup id="tablecontainer2">
+							<p:dataTable value="#{carAssignManager.assignedReservationList}"
+								var="reservation" paginator="true" rows="10"
+								paginatorAlwaysVisible="false" paginatorPosition="bottom"
+								id="assignedlist"
+								rowStyleClass="#{reservation.id eq carAssignManager.selectedReservation.id ? 'rowhilight':null || reservation.id eq carAssignManager.editReservation.id ? 'rowhilight':null}">
+								<f:facet name="footer">
+									<div style="text-align: left;">
+										<p:commandButton value="เรียกรายการใหม่"
+											icon="ui-icon-refresh"
+											action="#{carAssignManager.createAssignedReservationList}"
+											update="assignedlist" id="refreshbutton2" process="@this" />
+									</div>
+								</f:facet>
+								<p:column>
+									<h:graphicImage library="images" name="alert.png"
+										style="width:16px;height:16px"
+										rendered="#{reservation.emergency == true}" />
+								</p:column>
+								<p:column filterStyle="width:50px" headerText="เลขที่ใบขอรถ"
+									style="width:5%" filterBy="#{reservation.requestNumber}"
+									filterMatchMode="contains">
+									<div style="text-align: right">
+										<h:outputText value="#{reservation.requestNumber}" />
+									</div>
+								</p:column>
+								<p:column headerText="วันที่สร้าง" style="width:5%">
+									<div style="text-align: right">
+										<h:outputText value="#{reservation.createDate}">
+											<f:convertDateTime pattern="d/M/yyyy" timeZone="GMT+7" />
+										</h:outputText>
+									</div>
+								</p:column>
+								<p:column headerText="ผู้ขอ" style="width:15%">
+									<h:outputText value="#{reservation.requester}" />
+								</p:column>
+								<p:column headerText="เบอร์โทร" style="width:5%">
+									<h:outputText value="#{reservation.internalPhone}" />
+								</p:column>
+								<p:column headerText="วันที่ใช้รถ" style="width:5%">
+									<div style="text-align: right">
+										<h:outputText value="#{reservation.endDate}">
+											<f:convertDateTime pattern="d/M/yyyy" timeZone="GMT+7" />
+										</h:outputText>
+									</div>
+								</p:column>
+								<p:column headerText="เวลาที่ใช้รถ" style="width:10%">
+									<div style="text-align: right">
+										<h:outputText value="#{reservation.startTime}">
+											<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+										</h:outputText>
+										<h:outputText value=" - " />
+										<h:outputText value="#{reservation.endTime}">
+											<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+										</h:outputText>
+									</div>
+								</p:column>
+								<p:column headerText="จุดเริ่มต้น" style="width:10%">
+									<h:outputText value="#{reservation.startingPoint}" />
+								</p:column>
+								<p:column headerText="สถานที่ไปปฏิบัติงาน" style="width:10%">
+									<h:outputText value="#{reservation.finishPoint}" />
+								</p:column>
+								<p:column headerText="ประเภทรถ" style="width:10%"
+									filterBy="#{reservation.carType.value}" filterMatchMode="exact"
+									filterOptions="#{carAssignManager.carTypeFilterOptionsTable2}">
+									<h:outputText value="#{reservation.carType.value}" />
+								</p:column>
+								<p:column headerText="สถานะ" style="width:10%"
+									filterBy="#{reservation.formStatus.value}"
+									filterMatchMode="exact"
+									filterOptions="#{carAssignManager.formStatusFilterOptionsTable2}">
+									<h:outputText value="#{reservation.formStatus.value}" />
+								</p:column>
+								<p:column style="text-align:center;width:15%">
+									<p:commandButton title="ข้อมูลเพิ่มเติม" icon="ui-icon-search"
+										oncomplete="showInfoDialogAssign();blockListUI2.hide();"
+										update=":centerform:infodialog, :centerform:tablecontainer1, :centerform:tablecontainer2"
+										action="#{carAssignManager.createTravellerList}"
+										onstart="blockListUI2.show();" process="@this"
+										style="width:16px;height:16px">
+										<f:setPropertyActionListener value="#{reservation}"
+											target="#{carAssignManager.selectedReservation}" />
+									</p:commandButton>
+									<p:commandButton title="รอการจัดรถ" icon="ui-icon-close"
+										update=":centerform:tablecontainer1, :centerform:tablecontainer2"
+										action="#{carAssignManager.setReservationStatus('notready')}"
+										process="@this" onstart="blockListUI2.show();"
+										disabled="#{reservation.formStatus == 'CANCELED' || reservation.formStatus == 'FINISHED' || func:compareDate(carAssignManager.today, reservation.endDate)}"
+										oncomplete="blockListUI2.hide();"
+										style="width:16px;height:16px;margin-left:3px">
+										<f:setPropertyActionListener value="#{reservation}"
+											target="#{carAssignManager.editReservation}" />
+									</p:commandButton>
+									<p:commandButton title="เพิ่มผู้ร่วมเดินทาง"
+										icon="ui-icon-person"
+										style="width:16px;height:16px;margin-left:3px" process="@this"
+										oncomplete="blockListUI2.hide();showAddTravellerDialog();"
+										onstart="blockListUI2.show();"
+										update=":centerform:addtravellerdialog"
+										action="#{carAssignManager.createTravellersList()}"
+										disabled="#{reservation.formStatus == 'FINISHED' || reservation.formStatus == 'CANCELED'}">
+										<f:setPropertyActionListener value="#{reservation}"
+											target="#{carAssignManager.editReservation}" />
+									</p:commandButton>
+									<p:commandButton title="ปิดงาน"
+										style="margin-left:3px;width:16px;height:16px"
+										icon="ui-icon-flag"
+										oncomplete="showCloseJobDialog();blockListUI2.hide();"
+										action="#{carAssignManager.createQueueListForCloseJob}"
+										update=":centerform:closejobdialog, :centerform:tablecontainer2"
+										disabled="#{reservation.formStatus == 'FINISHED' || reservation.formStatus == 'CANCELED'}"
+										process="@this" onstart="blockListUI2.show();">
+										<f:setPropertyActionListener
+											target="#{carAssignManager.editReservation}"
+											value="#{reservation}" />
+									</p:commandButton>
+									<h:commandLink title="พิมพ์ใบงาน"
+										action="#{carAssignManager.printJob()}" target="_blank">
+										<h:graphicImage value="../resources/images/print.png"
+											style="width:16px;height:16px;margin-left:3px"
+											rendered="#{(reservation.carType != 'TAXI' and reservation.formStatus != 'CANCELED') and (reservation.formStatus != 'FINISHED')}" />
+										<f:setPropertyActionListener
+											target="#{carAssignManager.editReservation}"
+											value="#{reservation}" />
+									</h:commandLink>
+									<h:commandLink title="พิมพ์ใบขอใช้รถ"
+										action="#{carAssignManager.printReport()}" target="_blank"
+										rendered="#{(reservation.carType == 'RENT_VAN' || reservation.carType == 'PICKUP') and (reservation.formStatus != 'CANCELED') and (reservation.formStatus != 'FINISHED')}">
+										<h:graphicImage value="../resources/images/print.png"
+											style="width:16px;height:13px;margin-left:3px" />
+										<f:setPropertyActionListener
+											target="#{carAssignManager.editReservation}"
+											value="#{reservation}" />
+									</h:commandLink>
+								</p:column>
+							</p:dataTable>
+						</h:panelGroup>
+					</p:fieldset>
+				</h:panelGroup>
+			</p:panel>
+			<p:dialog widgetVar="copyRequestDialog" id="copyrequestdialog"
+				resizable="false" modal="true"
+				header="คัดลอกใบขอรถเลขที่ #{carAssignManager.editReservation.requestNumber}"
+				showEffect="clip" hideEffect="clip">
+				<h:panelGrid columns="2" id="copygrid">
+					<h:outputText value="ประเภทรถ:" />
+					<p:selectOneMenu
+						value="#{carAssignManager.editReservation.carType}">
+						<f:selectItems value="#{carAssignManager.carTypeSelectItemList}" />
+					</p:selectOneMenu>
+					<h:outputText value="ตั้งแต่เวลา:" />
+					<p:calendar navigator="true"
+						value="#{carAssignManager.editReservation.startTime}" locale="th"
+						pattern="HH:mm" timeOnly="true" />
+					<h:outputText value="ถึงเวลา:" />
+					<p:calendar navigator="true"
+						value="#{carAssignManager.editReservation.endTime}" locale="th"
+						pattern="HH:mm" timeOnly="true" />
+				</h:panelGrid>
+				<p:separator />
+				<p:commandButton value="บันทึก" icon="ui-icon-disk"
+					process="@this, copygrid" update=":centerform:tablecontainer1"
+					oncomplete="copyRequestDialog.hide()"
+					action="#{carAssignManager.copyReservation()}" />
+			</p:dialog>
+			<p:dialog widgetVar="addTravellerDialog" modal="true"
+				showEffect="clip" hideEffect="clip" id="addtravellerdialog"
+				header="เพิ่มผู้ร่วมเดินทางใบจองรถเลขที่ #{carAssignManager.editReservation.requestNumber}"
+				resizable="false">
+				<h:panelGrid columns="3" id="addtravellergrid">
+					<h:outputText value="ผู้ร่วมเดินทาง" />
+					<p:autoComplete value="#{carAssignManager.selectedTravellers}"
+						completeMethod="#{travellersAutocomplete.getEmployeeList()}"
+						multiple="true" scrollHeight="210" var="emp"
+						converter="employeeConverter" itemLabel="#{emp}"
+						itemValue="#{emp}" process="@this" minQueryLength="2">
+						<p:column>
+							<h:graphicImage value="/photo/#{emp.STAFFCODE}" width="50"
+								height="60" />
+						</p:column>
+						<p:column style="width:90%">
+							<h:outputText value="ชื่อ: #{emp}" />
+							<br />
+							<h:outputText
+								value="สังกัด: #{emp.employeeInfos.get(0).DEPFINANCE}" />
+						</p:column>
+					</p:autoComplete>
+					<p:commandButton value="บันทึก" icon="ui-icon-disk"
+						process="@this, addtravellergrid"
+						action="#{carAssignManager.updateTravellers()}"
+						oncomplete="addTravellerDialog.hide()" />
+				</h:panelGrid>
+			</p:dialog>
+			<p:dialog modal="true"
+				header="ปิดงานใบจองรถเลขที่ #{carAssignManager.editReservation.requestNumber}"
+				widgetVar="closeJobDialog" id="closejobdialog" showEffect="clip"
+				hideEffect="clip" resizable="false">
+				<p:ajax event="close" update="tablecontainer2"
+					listener="#{carAssignManager.carAssignDialogClosed()}" />
+				<p:dataTable value="#{carAssignManager.queueItemList}" var="queue"
+					paginator="true" paginatorAlwaysVisible="false"
+					paginatorPosition="bottom" rows="5" id="closequeuelist"
+					rendered="#{carAssignManager.editReservation.carType == 'VAN' || carAssignManager.editReservation.carType == 'RENT_VAN'}">
+					<f:facet name="header">
+						<h:outputText value="รายการรถ" />
+					</f:facet>
+					<p:column headerText="วันที่">
+						<h:outputText value="#{queue.reservationItem.useDate}">
+							<f:convertDateTime pattern="d/M/yyyy" timeZone="GMT+7" />
+						</h:outputText>
+					</p:column>
+					<p:column headerText="เวลา">
+						<h:outputText value="#{queue.reservationItem.startTime}">
+							<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+						</h:outputText>
+						<h:outputText value=" - " />
+						<h:outputText value="#{queue.reservationItem.endTime}">
+							<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+						</h:outputText>
+					</p:column>
+					<p:column headerText="ชื่อรถ"
+						rendered="#{carAssignManager.editReservation.carType.ID == 'VAN'}">
+						<h:outputText value="#{queue.car.name}" />
+					</p:column>
+					<p:column headerText="ทะเบียนรถ"
+						rendered="#{carAssignManager.editReservation.carType.ID == 'VAN'}">
+						<h:outputText value="#{queue.car.registerNumber}" />
+					</p:column>
+					<p:column headerText="ผู้ขับรถ"
+						rendered="#{carAssignManager.editReservation.carType.ID == 'VAN'}">
+						<h:outputText value="#{queue.driver}" />
+					</p:column>
+					<p:column headerText="ผู้ให้เช่ารถ"
+						rendered="#{carAssignManager.editReservation.carType.ID == 'RENT_VAN'}">
+						<h:outputText value="#{queue.rental.companyName}" />
+					</p:column>
+					<p:column headerText="ค่าเช่ารถ"
+						rendered="#{carAssignManager.editReservation.carType.ID == 'RENT_VAN'}">
+						<div style="text-align: right">
+							<h:outputText value="#{queue.rentCost}" />
+						</div>
+					</p:column>
+					<p:column headerText="ค่าทางพิเศษ">
+						<div style="text-align: right">
+							<h:outputText value="#{queue.tolls}" />
+						</div>
+					</p:column>
+					<p:column headerText="ค่าที่จอดรถ">
+						<div style="text-align: right">
+							<h:outputText value="#{queue.parkCost}" />
+						</div>
+					</p:column>
+					<p:column style="text-align:center">
+						<p:commandButton title="แก้ไข" icon="ui-icon-pencil"
+							update=":centerform:queueinfoeditdialog"
+							oncomplete="queueInfoEditDialog.show()" process="@this"
+							style="width:16px;height:16px">
+							<f:setPropertyActionListener
+								target="#{carAssignManager.selectedQueue}" value="#{queue}" />
+						</p:commandButton>
+					</p:column>
+				</p:dataTable>
+				<p:separator
+					rendered="#{carAssignManager.editReservation.carType == 'VAN' || carAssignManager.editReservation.carType == 'RENT_VAN'}" />
+				<p:commandButton value="ปิดงาน" icon="ui-icon-check"
+					oncomplete="closeJobDialog.hide()"
+					action="#{carAssignManager.closeJob()}"
+					update=":centerform:assignedlist" process="@this" />
+			</p:dialog>
+			<p:dialog
+				header="ข้อมูลใบจองรถเลขที่ #{carAssignManager.selectedReservation.requestNumber}"
+				widgetVar="infoDialogAssign" id="infodialog" modal="false"
+				showEffect="clip" hideEffect="clip" resizable="false">
+				<p:ajax event="close"
+					update=":centerform:tablecontainer1, :centerform:tablecontainer2"
+					listener="#{carAssignManager.infoDialogClosed()}" />
+				<h:inputText style="width:0px;height:0px;border:none" />
+				<div style="float: left">
+					<p:fieldset legend="ข้อมูลผู้ขอรถ">
+						<h:panelGrid columns="2">
+							<h:outputText value="ชื่อผู้ขอ:" />
+							<h:outputText
+								value="#{carAssignManager.selectedReservation.requester}" />
+							<h:outputText value="ฝ่าย/กอง:" />
+							<h:outputText
+								value="#{carAssignManager.selectedReservation.requester.employeeInfos[0].DEPPERSON}" />
+							<h:outputText value="โทรศัพท์:" />
+							<h:outputText
+								value="#{carAssignManager.selectedReservation.internalPhone}" />
+						</h:panelGrid>
+					</p:fieldset>
+					<p:spacer height="10" />
+					<p:fieldset legend="วันที่และเวลา">
+						<h:panelGrid columns="2">
+							<h:outputText value="วันที่ต้องการใช้รถ:" />
+							<h:outputText
+								value="#{carAssignManager.selectedReservation.endDate}">
+								<f:convertDateTime pattern="d/M/yyyy" timeZone="GMT+7" />
+							</h:outputText>
+							<h:outputText value="ตั้งแต่เวลา" />
+							<h:outputText
+								value="#{carAssignManager.selectedReservation.startTime}">
+								<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+							</h:outputText>
+							<h:outputText value="ถึงเวลา:" />
+							<h:outputText
+								value="#{carAssignManager.selectedReservation.endTime}">
+								<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+							</h:outputText>
+						</h:panelGrid>
+					</p:fieldset>
+					<p:spacer height="10" />
+					<p:fieldset legend="หมายเหตุ (ผอ.ต้นสังกัด)"
+						rendered="#{carAssignManager.selectedReservation.directorRemark != null}">
+						<h:panelGrid columns="2" styleClass="verticaltop">
+							<h:outputText value="หมายเหตุ:" />
+							<p:inputTextarea
+								value="#{carAssignManager.selectedReservation.directorRemark}"
+								style="border:none;background:#f2f1f1;padding:0px;box-shadow:none;width:180px;height:80px"
+								autoResize="false" />
+						</h:panelGrid>
+					</p:fieldset>
+					<p:spacer height="10" />
+					<p:fieldset legend="หมายเหตุ (ผอ.กองบริการ)"
+						rendered="#{carAssignManager.selectedReservation.serviceRemark != null}">
+						<h:panelGrid columns="2" styleClass="verticaltop">
+							<h:outputText value="หมายเหตุ:" />
+							<p:inputTextarea
+								value="#{carAssignManager.selectedReservation.serviceRemark}"
+								style="border:none;background:#f2f1f1;padding:0px;box-shadow:none;width:180px;height:80px"
+								autoResize="false" />
+						</h:panelGrid>
+					</p:fieldset>
+				</div>
+				<div style="float: left; margin-left: 5px">
+					<p:fieldset legend="ข้อมูลใบจอง">
+						<h:panelGrid columns="2" styleClass="verticaltop">
+							<h:outputText value="เลขที่ใบจอง:" />
+							<h:outputText
+								value="#{carAssignManager.selectedReservation.requestNumber}" />
+							<h:outputText value="เอกสารอ้างอิง:" />
+							<h:outputText
+								value="#{carAssignManager.selectedReservation.refDocument}" />
+							<h:outputText value="สถานะ:" />
+							<h:outputText
+								value="#{carAssignManager.selectedReservation.formStatus.value}" />
+							<h:outputText value="วันที่สร้าง:" />
+							<h:outputText
+								value="#{carAssignManager.selectedReservation.createDate}">
+								<f:convertDateTime pattern="d/M/yyyy" timeZone="GMT+7" />
+							</h:outputText>
+							<h:outputText value="ประเภทรถ:" />
+							<h:outputText
+								value="#{carAssignManager.selectedReservation.carType.value}" />
+							<h:outputText value="เที่ยวเดินรถ:" />
+							<h:outputText
+								value="#{carAssignManager.selectedReservation.travelType.value}" />
+							<h:outputText value="วัตถุประสงค์:" />
+							<h:outputText
+								value="#{carAssignManager.selectedReservation.purpose.name}" />
+							<h:outputText value="จุดขึ้นรถ:" />
+							<h:outputText
+								value="#{carAssignManager.selectedReservation.parkingLocation.name}" />
+							<h:outputText value="จุดเริ่มต้น:" />
+							<h:outputText
+								value="#{carAssignManager.selectedReservation.startingPoint}" />
+							<h:outputText value="สถานที่ไปปฏิบัติงาน:" />
+							<h:outputText
+								value="#{carAssignManager.selectedReservation.finishPoint}" />
+							<h:outputText value="จำนวนรถ:" />
+							<h:outputText
+								value="#{carAssignManager.selectedReservation.numberOfCars}" />
+							<h:outputText value="จำนวนผู้โดยสาร:" />
+							<h:outputText
+								value="#{carAssignManager.selectedReservation.numberOfTraveller}" />
+							<h:outputText value="ผู้ร่วมเดินทาง:"
+								rendered="#{fn:length(carAssignManager.travellerList) != 0}" />
+							<ui:repeat var="name" value="#{carAssignManager.travellerList}"
+								rendered="#{fn:length(carAssignManager.travellerList) != 0}">
+								<h:outputText value="#{name}" />
+								<br />
+							</ui:repeat>
+							<h:outputText value="รายละเอียด:"
+								rendered="#{carAssignManager.selectedReservation.remark != null}" />
+							<p:inputTextarea
+								value="#{carAssignManager.selectedReservation.remark}"
+								rendered="#{carAssignManager.selectedReservation.remark != null}"
+								style="border:none;background:#f2f1f1;padding:0px;box-shadow:none;width:180px;height:80px"
+								autoResize="false" />
+						</h:panelGrid>
+					</p:fieldset>
+				</div>
+				<div style="float: left; margin-left: 5px">
+					<p:fieldset legend="ข้อมูลรถ"
+						rendered="#{carAssignManager.selectedReservation.carType == 'VAN' and carAssignManager.selectedReservation.formStatus == 'CAR_ASSIGNED'}">
+						<p:dataList styleClass="datalist-noborder"
+							value="#{carAssignManager.selectedReservation.listReservationItem}"
+							var="item" itemType="none" type="definition">
+							<h:outputText value="รอบเวลา: " />
+							<h:outputText value="#{item.startTime}">
+								<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+							</h:outputText>
+							<h:outputText value=" - " />
+							<h:outputText value="#{item.endTime}">
+								<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+							</h:outputText>
+							<f:facet name="description">
+								<p:dataList value="#{item.listQueue}" var="queue"
+									itemType="none" type="definition">
+									<f:facet name="description">
+										<h:outputText value="" />
+									</f:facet>
+									<h:panelGrid columns="2">
+										<h:outputText value="ชื่อรถ:" />
+										<h:outputText value="#{queue.car.name}" />
+										<h:outputText value="เลขทะเบียน:" />
+										<h:outputText value="#{queue.car.registerNumber}" />
+										<h:outputText value="ผู้ขับ:" />
+										<h:outputText value="#{queue.driver}" />
+										<h:outputText value="เบอร์โทรศัพท์:" />
+										<h:outputText value="#{queue.driver.phoneNumber}" />
+									</h:panelGrid>
+									<p:separator />
+								</p:dataList>
+							</f:facet>
+						</p:dataList>
+					</p:fieldset>
+				</div>
+			</p:dialog>
+			<p:dialog widgetVar="carAssignDialog" modal="false" showEffect="clip"
+				hideEffect="clip" resizable="false" id="carassigndialog">
+				<f:facet name="header">
+					<h:outputText value="จัดรถ " />
+					<h:outputText
+						value="#{carAssignManager.selectedReservationItem.useDate}">
+						<f:convertDateTime pattern="d/M/yyyy" />
+					</h:outputText>
+					<h:outputText value=" " />
+					<h:outputText
+						value="#{carAssignManager.selectedReservationItem.startTime}">
+						<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+					</h:outputText>
+					<h:outputText value="-" />
+					<h:outputText
+						value="#{carAssignManager.selectedReservationItem.endTime}">
+						<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+					</h:outputText>
+				</f:facet>
+				<h:panelGroup id="carpanelgroup" style="float:left">
+					<p:dataTable value="#{carAssignManager.queueItemList}" var="queue"
+						id="queuelist" rows="10" paginator="true"
+						paginatorAlwaysVisible="false" paginatorPosition="bottom"
+						rowIndexVar="rowNo">
+						<f:facet name="header">
+							<h:outputText value="รายการรถ" />
+						</f:facet>
+						<p:column>
+							<h:outputText value="#{rowNo+1}" />
+						</p:column>
+						<p:column headerText="ชื่อรถ">
+							<h:outputText value="#{queue.car.name}" />
+						</p:column>
+						<p:column headerText="ทะเบียนรถ">
+							<h:outputText value="#{queue.car.registerNumber}" />
+						</p:column>
+						<p:column headerText="ผู้ขับรถ">
+							<h:outputText value="#{queue.driver}" />
+						</p:column>
+						<p:column style="text-align:center">
+							<p:commandButton title="ลบ" icon="ui-icon-trash"
+								action="#{carAssignManager.deleteQueue}"
+								update=":centerform:carpanelgroup"
+								disabled="#{carAssignManager.editReservation.formStatus != 'TRAN_APPROVED'}"
+								process="@this" style="width:16px;height:16px">
+								<f:setPropertyActionListener
+									target="#{carAssignManager.editQueue}" value="#{queue}" />
+							</p:commandButton>
+						</p:column>
+					</p:dataTable>
+					<p:spacer height="10" />
+					<h:panelGrid columns="3" cellpadding="3" id="queueinput">
+						<h:outputText value="รถตู้:" />
+						<p:selectOneMenu value="#{carAssignManager.selectedCarID}"
+							disabled="#{carAssignManager.editReservation.formStatus != 'TRAN_APPROVED'}">
+							<f:selectItems value="#{carAssignManager.carSelectItemList}" />
+							<p:ajax listener="#{carAssignManager.carSelected}" />
+						</p:selectOneMenu>
+						<p:commandButton value="เพิ่มรถ" icon="ui-icon-plus"
+							action="#{carAssignManager.validateQueue()}"
+							update="queueinput, queuelist"
+							disabled="#{carAssignManager.editReservation.formStatus != 'TRAN_APPROVED'}" />
+					</h:panelGrid>
+				</h:panelGroup>
+			</p:dialog>
+			<p:dialog widgetVar="travelDialog" resizable="false" modal="true"
+				id="traveldialog" showEffect="clip" hideEffect="clip" height="500"
+				width="600">
+				<p:ajax event="close" update="tablecontainer1, tablecontainer2"
+					listener="#{carAssignManager.carAssignDialogClosed()}" />
+				<f:facet name="header">
+					<h:outputText
+						value="จัดรถ #{carAssignManager.editReservation.requestNumber}"
+						id="dialogheader" />
+				</f:facet>
+				<h:panelGroup layout="block" id="assigninfopanelgroup">
+					<div style="float: left">
+						<p:fieldset legend="ข้อมูลผู้ขอรถ">
+							<h:panelGrid columns="2">
+								<h:outputText value="ชื่อผู้ขอ:" />
+								<h:outputText
+									value="#{carAssignManager.editReservation.requester}" />
+								<h:outputText value="ฝ่าย/กอง:" />
+								<h:outputText
+									value="#{carAssignManager.editReservation.requester.employeeInfos[0].DEPPERSON}" />
+								<h:outputText value="โทรศัพท์:" />
+								<h:outputText
+									value="#{carAssignManager.editReservation.internalPhone}" />
+							</h:panelGrid>
+						</p:fieldset>
+						<p:spacer height="10" />
+						<p:fieldset legend="วันที่และเวลา">
+							<h:panelGrid columns="2">
+								<h:outputText value="วันที่ต้องการใช้รถ:" />
+								<h:outputText
+									value="#{carAssignManager.editReservation.endDate}">
+									<f:convertDateTime pattern="d/M/yyyy" timeZone="GMT+7" />
+								</h:outputText>
+								<h:outputText value="ตั้งแต่เวลา" />
+								<h:outputText
+									value="#{carAssignManager.editReservation.startTime}">
+									<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+								</h:outputText>
+								<h:outputText value="ถึงเวลา:" />
+								<h:outputText
+									value="#{carAssignManager.editReservation.endTime}">
+									<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+								</h:outputText>
+							</h:panelGrid>
+						</p:fieldset>
+						<p:spacer height="10" />
+						<p:fieldset legend="หมายเหตุ (ผอ.ต้นสังกัด)"
+							rendered="#{carAssignManager.editReservation.directorRemark != null}">
+							<h:panelGrid columns="2" styleClass="verticaltop">
+								<h:outputText value="หมายเหตุ:" />
+								<p:inputTextarea
+									value="#{carAssignManager.editReservation.directorRemark}"
+									style="border:none;background:#f2f1f1;padding:0px;box-shadow:none;width:180px;height:80px"
+									autoResize="false" />
+							</h:panelGrid>
+						</p:fieldset>
+						<p:spacer height="10" />
+						<p:fieldset legend="หมายเหตุ (ผอ.กองบริการ)"
+							rendered="#{carAssignManager.editReservation.serviceRemark != null}">
+							<h:panelGrid columns="2" styleClass="verticaltop">
+								<h:outputText value="หมายเหตุ:" />
+								<p:inputTextarea
+									value="#{carAssignManager.editReservation.serviceRemark}"
+									style="border:none;background:#f2f1f1;padding:0px;box-shadow:none;width:180px;height:80px"
+									autoResize="false" />
+							</h:panelGrid>
+						</p:fieldset>
+					</div>
+					<div style="float: left; margin-left: 5px">
+						<p:fieldset legend="ข้อมูลใบจอง">
+							<h:panelGrid columns="2" styleClass="verticaltop">
+								<h:outputText value="เลขที่ใบจอง:" />
+								<h:outputText
+									value="#{carAssignManager.editReservation.requestNumber}" />
+								<h:outputText value="เอกสารอ้างอิง:" />
+								<h:outputText
+									value="#{carAssignManager.editReservation.refDocument}" />
+								<h:outputText value="สถานะ:" />
+								<h:outputText
+									value="#{carAssignManager.editReservation.formStatus.value}" />
+								<h:outputText value="วันที่สร้าง:" />
+								<h:outputText
+									value="#{carAssignManager.editReservation.createDate}">
+									<f:convertDateTime pattern="d/M/yyyy" timeZone="GMT+7" />
+								</h:outputText>
+								<h:outputText value="ประเภทรถ:" />
+								<h:outputText
+									value="#{carAssignManager.editReservation.carType.value}" />
+								<h:outputText value="เที่ยวเดินรถ:" />
+								<h:outputText
+									value="#{carAssignManager.editReservation.travelType.value}" />
+								<h:outputText value="วัตถุประสงค์:" />
+								<h:outputText
+									value="#{carAssignManager.editReservation.purpose.name}" />
+								<h:outputText value="จุดขึ้นรถ:" />
+								<h:outputText
+									value="#{carAssignManager.editReservation.parkingLocation.name}" />
+								<h:outputText value="จุดเริ่มต้น:" />
+								<h:outputText
+									value="#{carAssignManager.editReservation.startingPoint}" />
+								<h:outputText value="สถานที่ไปปฏิบัติงาน:" />
+								<h:outputText
+									value="#{carAssignManager.editReservation.finishPoint}" />
+								<h:outputText value="จำนวนรถ:" />
+								<h:outputText
+									value="#{carAssignManager.editReservation.numberOfCars}" />
+								<h:outputText value="จำนวนผู้โดยสาร:" />
+								<h:outputText
+									value="#{carAssignManager.editReservation.numberOfTraveller}" />
+								<h:outputText value="ผู้ร่วมเดินทาง:"
+									rendered="#{fn:length(carAssignManager.travellerList) != 0}" />
+								<ui:repeat var="name" value="#{carAssignManager.travellerList}"
+									rendered="#{fn:length(carAssignManager.travellerList) != 0}">
+									<h:outputText value="#{name}" />
+									<br />
+								</ui:repeat>
+								<h:outputText value="รายละเอียด:"
+									rendered="#{carAssignManager.editReservation.remark != null}" />
+								<p:inputTextarea
+									value="#{carAssignManager.editReservation.remark}"
+									rendered="#{carAssignManager.editReservation.remark != null}"
+									style="border:none;background:#f2f1f1;padding:0px;box-shadow:none;width:180px;height:80px"
+									autoResize="false" />
+							</h:panelGrid>
+						</p:fieldset>
+					</div>
+					<div style="float: left; margin-left: 5px">
+						<p:fieldset legend="ข้อมูลรถ"
+							rendered="#{carAssignManager.editReservation.carType == 'VAN' and carAssignManager.editReservation.formStatus == 'CAR_ASSIGNED'}">
+							<p:dataList styleClass="datalist-noborder"
+								value="#{carAssignManager.editReservation.listReservationItem}"
+								var="item" itemType="none" type="definition">
+								<h:outputText value="รอบเวลา: " />
+								<h:outputText value="#{item.startTime}">
+									<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+								</h:outputText>
+								<h:outputText value=" - " />
+								<h:outputText value="#{item.endTime}">
+									<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+								</h:outputText>
+								<f:facet name="description">
+									<p:dataList value="#{item.listQueue}" var="queue"
+										itemType="none" type="definition">
+										<f:facet name="description">
+											<h:outputText value="" />
+										</f:facet>
+										<h:panelGrid columns="2">
+											<h:outputText value="ชื่อรถ:" />
+											<h:outputText value="#{queue.car.name}" />
+											<h:outputText value="เลขทะเบียน:" />
+											<h:outputText value="#{queue.car.registerNumber}" />
+											<h:outputText value="ผู้ขับ:" />
+											<h:outputText value="#{queue.driver}" />
+											<h:outputText value="เบอร์โทรศัพท์:" />
+											<h:outputText value="#{queue.driver.phoneNumber}" />
+										</h:panelGrid>
+										<p:separator />
+									</p:dataList>
+								</f:facet>
+							</p:dataList>
+						</p:fieldset>
+					</div>
+				</h:panelGroup>
+				<h:panelGroup id="firstpanelgroup"
+					style="float:left;margin-top:10px">
+					<h:panelGroup id="secondpanelgroup">
+						<h:panelGrid columns="2">
+							<h:outputText value="เปลี่ยนแปลงประเภทรถ:" />
+							<p:selectOneMenu
+								value="#{carAssignManager.editReservation.carType}">
+								<f:selectItems value="#{carAssignManager.carTypeSelectItemList}" />
+								<p:ajax
+									listener="#{carAssignManager.changeReservationCarType()}"
+									update="travelinput, reservationitemlist, savegrid"
+									process="@this" />
+							</p:selectOneMenu>
+						</h:panelGrid>
+						<p:spacer height="10" />
+						<p:dataTable value="#{carAssignManager.reservationItemList}"
+							var="item" paginator="true" paginatorPosition="bottom"
+							paginatorAlwaysVisible="false" rows="10" rowIndexVar="rowNo"
+							id="reservationitemlist" style="width:550px">
+							<f:facet name="header">
+								<h:outputText value="รายการรอบเดินรถ" />
+							</f:facet>
+							<p:column>
+								<h:outputText value="#{rowNo+1}" />
+							</p:column>
+							<p:column headerText="วันที่" style="width:20%">
+								<h:outputText value="#{item.useDate}">
+									<f:convertDateTime pattern="d/M/yyyy" timeZone="GMT+7" />
+								</h:outputText>
+							</p:column>
+							<p:column headerText="เวลาที่รถออก" style="width:20%">
+								<h:outputText value="#{item.startTime}">
+									<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+								</h:outputText>
+							</p:column>
+							<p:column headerText="เวลาที่รถกลับมาถึง" style="width:20%">
+								<h:outputText value="#{item.endTime}">
+									<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+								</h:outputText>
+							</p:column>
+							<p:column style="text-align:center;width:20%">
+								<p:commandButton title="จัดรถ" icon="ui-icon-plus"
+									action="#{carAssignManager.findAvailableCars}"
+									update=":centerform:carassigndialog"
+									oncomplete="showCarAssignDialog()" process="@this"
+									style="width:16px;height:16px">
+									<f:setPropertyActionListener value="#{item}"
+										target="#{carAssignManager.selectedReservationItem}" />
+								</p:commandButton>
+								<p:commandButton title="ลบ" icon="ui-icon-trash"
+									style="margin-left:3px;width:16px;height:16px"
+									action="#{carAssignManager.deleteReservationItem}"
+									update=":centerform:secondpanelgroup"
+									disabled="#{carAssignManager.editReservation.formStatus != 'TRAN_APPROVED'}"
+									process="@this">
+									<f:setPropertyActionListener
+										target="#{carAssignManager.selectedReservationItem}"
+										value="#{item}" />
+								</p:commandButton>
+							</p:column>
+						</p:dataTable>
+						<p:spacer height="10" />
+						<input type="text" style="width: 0px; height: 0px; border: 0px;" />
+						<h:panelGrid columns="2" cellpadding="3" id="travelinput">
+							<h:outputText value="วันที่:" />
+							<p:calendar
+								value="#{carAssignManager.editReservationItem.useDate}"
+								locale="th" navigator="true" disabled="true" />
+							<h:outputText value="เวลาที่รถออก:" />
+							<p:calendar
+								value="#{carAssignManager.editReservationItem.startTime}"
+								pattern="HH:mm" timeOnly="true" locale="th"
+								disabled="#{carAssignManager.editReservation.formStatus != 'TRAN_APPROVED' || carAssignManager.editReservation.carType != 'VAN'}" />
+							<h:outputText value="เวลาที่รถกลับมาถึง:" />
+							<p:calendar
+								value="#{carAssignManager.editReservationItem.endTime}"
+								pattern="HH:mm" timeOnly="true" locale="th"
+								disabled="#{carAssignManager.editReservation.formStatus != 'TRAN_APPROVED' || carAssignManager.editReservation.carType != 'VAN'}" />
+						</h:panelGrid>
+						<h:panelGrid columns="1" id="savegrid">
+							<p:commandButton value="บันทึก" icon="ui-icon-disk"
+								action="#{carAssignManager.validateReservationItem()}"
+								update="reservationitemlist, travelinput" id="itemsavebutton"
+								disabled="#{carAssignManager.editReservation.formStatus != 'TRAN_APPROVED' || carAssignManager.editReservation.carType != 'VAN'}"
+								process="@this, travelinput" />
+						</h:panelGrid>
+						<p:separator />
+						<h:panelGrid columns="2" id="buttongrid">
+							<p:commandButton value="จัดรถเรียบร้อยแล้ว" icon="ui-icon-check"
+								rendered="#{!carAssignManager.readyFlag}"
+								update="reservationlist, assignedlist"
+								action="#{carAssignManager.setReservationStatus('ready')}"
+								oncomplete="travelDialog.hide()" process="@this"
+								id="assignfinishbtn" />
+						</h:panelGrid>
+					</h:panelGroup>
+				</h:panelGroup>
+			</p:dialog>
+			<p:dialog resizable="false" widgetVar="queueInfoEditDialog"
+				id="queueinfoeditdialog" showEffect="clip" hideEffect="clip"
+				header="เพิ่มเติมข้อมูลหลังเดินรถ">
+				<h:panelGrid columns="2" cellpadding="3" id="travelinfoedit">
+					<h:outputText value="ค่าทางพิเศษ:" />
+					<p:inputText value="#{carAssignManager.selectedQueue.tolls}" />
+					<h:outputText value="ค่าที่จอดรถ:" />
+					<p:inputText value="#{carAssignManager.selectedQueue.parkCost}" />
+					<h:outputText value="ค่าเช่ารถ:"
+						rendered="#{carAssignManager.editReservation.carType.ID == 'RENT_VAN'}" />
+					<p:inputText value="#{carAssignManager.selectedQueue.rentCost}"
+						rendered="#{carAssignManager.editReservation.carType.ID == 'RENT_VAN'}" />
+					<h:outputText value="ผู้ให้เช่ารถ:"
+						rendered="#{carAssignManager.editReservation.carType.ID == 'RENT_VAN'}" />
+					<p:selectOneMenu value="#{carAssignManager.selectedRental}"
+						rendered="#{carAssignManager.editReservation.carType.ID == 'RENT_VAN'}">
+						<f:selectItems value="#{carAssignManager.rentalSelectItemList}" />
+					</p:selectOneMenu>
+					<h:outputText value="เลขไมล์เริ่มต้น:"
+						rendered="#{carAssignManager.editReservation.carType.ID == 'VAN'}" />
+					<p:inputText value="#{carAssignManager.selectedQueue.startMileage}"
+						rendered="#{carAssignManager.editReservation.carType.ID == 'VAN'}" />
+					<h:outputText value="เลขไมล์สิ้นสุด:"
+						rendered="#{carAssignManager.editReservation.carType.ID == 'VAN'}" />
+					<p:inputText value="#{carAssignManager.selectedQueue.endMileage}"
+						rendered="#{carAssignManager.editReservation.carType.ID == 'VAN'}" />
+					<h:outputText value="หมายเหตุ:" />
+					<p:inputTextarea value="#{carAssignManager.selectedQueue.remark}" />
+				</h:panelGrid>
+				<p:separator />
+				<p:commandButton value="บันทึก" icon="ui-icon-disk"
+					action="#{carAssignManager.saveQueueInfo()}"
+					oncomplete="queueInfoEditDialog.hide()"
+					update=":centerform:closequeuelist" />
+			</p:dialog>
+		</ui:define>
+	</ui:composition>
+</body>
+</html>

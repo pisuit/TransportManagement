@@ -1,0 +1,516 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+
+<h:head>
+</h:head>
+<body>
+	<ui:composition template="mainlayout.xhtml">
+		<ui:define name="content">
+			<p:blockUI block="listfieldset" widgetVar="blockListUI">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI trigger=":centerform:reservationlist:refreshbutton"
+				block="listfieldset">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI trigger="savebutton" block="inputfieldset">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI trigger="refreshinputbutton" block="inputfieldset">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI block="inputfieldset" widgetVar="blockInputUI">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI block="listfieldset" trigger="deletebtn">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI block="listfieldset" trigger="cancelbtn">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:panel header="สร้างใบขอใช้รถ">
+				<p:fieldset toggleable="true" legend="แบบฟอร์มการขอรถ"
+					id="inputfieldset">
+					<h:panelGrid columns="2" id="inputgrid" styleClass="verticaltop">
+						<h:panelGroup>
+							<h:panelGrid columns="2" cellpadding="3">
+								<h:outputText value="วันที่สร้าง:" />
+								<h:outputText value="#{requestManager.createDate}">
+									<f:convertDateTime pattern="d/M/yyyy" timeZone="GMT+7" />
+								</h:outputText>
+								<h:outputText value="ผู้ขอ:" />
+								<h:outputText value="#{requestManager.requester}" />
+								<h:outputText value="ฝ่าย/กอง:" />
+								<h:outputText
+									value="#{requestManager.requester.employeeInfos[0].DEPFINANCE}"
+									rendered="#{requestManager.requester.employeeInfos[0].DEPFINANCE != 'ฝจ.'}" />
+								<h:outputText
+									value="#{requestManager.requester.employeeInfos[0].DEPPERSON}"
+									rendered="#{requestManager.requester.employeeInfos[0].DEPFINANCE == 'ฝจ.'}" />
+								<h:outputText value="โทรศัพท์:" />
+								<p:autoComplete
+									value="#{requestManager.reservation.internalPhone}"
+									dropdown="true" size="17"
+									completeMethod="#{requestManager.phoneAutocomplete()}" />
+								<h:outputText value="ประเภทรถ:" />
+								<p:selectOneRadio value="#{requestManager.selectedCarType}"
+									layout="pageDirection">
+									<f:selectItems value="#{requestManager.carTypeSelectItemList}" />
+									<p:ajax listener="#{requestManager.carTypeSelected}" />
+								</p:selectOneRadio>
+								<h:outputText value="เที่ยวเดินรถ:" />
+								<p:selectOneRadio value="#{requestManager.selectedTravelType}"
+									layout="pageDirection">
+									<f:selectItems
+										value="#{requestManager.travelTypeSelectItemList}" />
+									<p:ajax listener="#{requestManager.travelTypeSelected}" />
+								</p:selectOneRadio>
+								<h:outputText value="วัตถุประสงค์:" />
+								<p:selectOneMenu value="#{requestManager.selectedPurpose}"
+									style="width:170px">
+									<f:selectItems value="#{requestManager.purposeSelectItemList}" />
+									<p:ajax listener="#{requestManager.purposeSelected}" />
+								</p:selectOneMenu>
+								<h:outputText value="จุดขึ้นรถ:" />
+								<p:selectOneMenu
+									value="#{requestManager.selectedParkingLocation}"
+									style="width:170px">
+									<f:selectItems
+										value="#{requestManager.parkingLocationSelectItemList}" />
+									<p:ajax listener="#{requestManager.parkingLocationSelected}" />
+								</p:selectOneMenu>
+							</h:panelGrid>
+						</h:panelGroup>
+						<h:panelGroup>
+							<h:panelGrid columns="4" cellpadding="3">
+								<h:outputText value="เอกสารอ้างอิง:" />
+								<p:inputText value="#{requestManager.reservation.refDocument}"
+									style="margin-left:7px" />
+								<h:outputText value="" />
+								<h:outputText value="" />
+								<h:outputText value="วันที่ต้องการใช้รถ:" />
+								<p:calendar navigator="true"
+									value="#{requestManager.reservation.endDate}" locale="th"
+									style="margin-left:7px" />
+								<h:outputText value="" />
+								<h:outputText value="" />
+								<h:outputText value="ตั้งแต่เวลา:" />
+								<p:calendar pattern="HH:mm" timeOnly="true" locale="th"
+									value="#{requestManager.reservation.startTime}"
+									style="margin-left:7px" />
+								<h:outputText value="ถึงเวลา:" />
+								<p:calendar pattern="HH:mm" timeOnly="true" locale="th"
+									value="#{requestManager.reservation.endTime}" />
+								<h:outputText value="จุดเริ่มต้น:" />
+								<p:autoComplete
+									value="#{requestManager.reservation.startingPoint}"
+									style="margin-left:7px"
+									completeMethod="#{requestManager.startPointAutocomplete()}" />
+								<h:outputText value="สถานที่ไปปฏิบัติงาน:" />
+								<p:inputText value="#{requestManager.reservation.finishPoint}"
+									style="width:300px" />
+							</h:panelGrid>
+							<h:panelGrid columns="2" cellpadding="3">
+								<h:outputText value="จำนวนรถที่ต้องการ:" />
+								<p:inputText value="#{requestManager.reservation.numberOfCars}" />
+								<h:outputText value="จำนวนผู้โดยสาร:" />
+								<p:inputText
+									value="#{requestManager.reservation.numberOfTraveller}" />
+								<h:outputText value="ผู้ร่วมเดินทาง:" />
+								<p:autoComplete value="#{requestManager.selectedTravellers}"
+									completeMethod="#{travellersAutocomplete.getEmployeeList()}"
+									multiple="true" scrollHeight="210" var="emp"
+									converter="employeeConverter" itemLabel="#{emp}"
+									itemValue="#{emp}" process="@this" minQueryLength="2">
+									<p:column>
+										<h:graphicImage value="/photo/#{emp.STAFFCODE}" width="50"
+											height="60" />
+									</p:column>
+									<p:column style="width:90%">
+										<h:outputText value="ชื่อ: #{emp}" />
+										<br />
+										<h:outputText
+											value="สังกัด: #{emp.employeeInfos.get(0).DEPFINANCE}" />
+									</p:column>
+								</p:autoComplete>
+								<h:outputText value="รายละเอียด:" />
+								<h:panelGroup>
+									<p:inputTextarea autoResize="false"
+										style="width:250px;height:70px"
+										value="#{requestManager.reservation.remark}" counter="counter"
+										maxlength="500" counterTemplate="{0} characters remaining." />
+									<br />
+									<h:outputText id="counter" />
+								</h:panelGroup>
+							</h:panelGrid>
+						</h:panelGroup>
+					</h:panelGrid>
+					<p:separator />
+					<h:panelGrid columns="4" width="450">
+						<p:commandButton value="บันทึก" icon="ui-icon-disk"
+							action="#{requestManager.validateInput()}"
+							update="inputgrid, reservationlist, confirmradiogrid, confirmalertmessage"
+							id="savebutton" process="@this, inputfieldset" />
+						<p:commandButton value="ล้างค่า" icon="ui-icon-refresh"
+							action="#{requestManager.refreshData}"
+							update="inputgrid, tablecontainer" id="refreshinputbutton"
+							process="@this" />
+						<p:selectBooleanCheckbox value="#{requestManager.refresh}" />
+						<h:outputText value="คงค่าเดิมหลังการบันทึก (เพื่อการขอรถหลายวัน)" />
+					</h:panelGrid>
+				</p:fieldset>
+				<p:spacer height="20" />
+				<p:fieldset legend="รายการใบขอรถ" toggleable="true"
+					id="listfieldset">
+					<h:panelGroup id="tablecontainer">
+						<p:dataTable value="#{requestManager.reservationList}"
+							var="reservation" id="reservationlist" paginator="true" rows="10"
+							paginatorPosition="bottom" paginatorAlwaysVisible="false"
+							rowStyleClass="#{reservation.id eq requestManager.reservation.id ? 'rowhilight':null || reservation.id eq requestManager.deletedReservation.id ? 'rowhilight':null || reservation.id eq requestManager.viewReservation.id ? 'rowhilight':null || reservation.formStatus eq 'REQUESTING' ? 'waitforapprove':null || reservation.id eq requestManager.canceledReservation.id ? 'rowhilight':null}">
+							<f:facet name="footer">
+								<div style="text-align: left;">
+									<p:commandButton value="เรียกรายการใหม่" icon="ui-icon-refresh"
+										action="#{requestManager.createReservationList}"
+										update="reservationlist" id="refreshbutton" process="@this" />
+								</div>
+							</f:facet>
+							<p:column>
+								<h:graphicImage library="images" name="alert.png"
+									style="width:16px;height:16px"
+									rendered="#{reservation.emergency == true}" />
+							</p:column>
+							<p:column headerText="เลขที่ใบขอรถ" style="width:5%"
+								filterBy="#{reservation.requestNumber}"
+								filterMatchMode="contains" filterStyle="width:50px">
+								<div style="text-align: right">
+									<h:outputText value="#{reservation.requestNumber}" />
+								</div>
+
+							</p:column>
+							<p:column headerText="วันที่สร้าง" style="width:5%">
+								<div style="text-align: right">
+									<h:outputText value="#{reservation.createDate}">
+										<f:convertDateTime pattern="d/M/yyyy" timeZone="GMT+7" />
+									</h:outputText>
+								</div>
+							</p:column>
+							<p:column headerText="ผู้ขอ" style="width:15%">
+								<h:outputText value="#{reservation.requester}" />
+							</p:column>
+							<p:column headerText="เบอร์โทร" style="width:5%">
+								<h:outputText value="#{reservation.internalPhone}" />
+							</p:column>
+							<p:column headerText="วันที่ใช้รถ" style="width:5%">
+								<div style="text-align: right">
+									<h:outputText value="#{reservation.endDate}">
+										<f:convertDateTime pattern="d/M/yyyy" timeZone="GMT+7" />
+									</h:outputText>
+								</div>
+							</p:column>
+							<p:column headerText="เวลาที่ใช้รถ" style="width:10%">
+								<div style="text-align: right">
+									<h:outputText value="#{reservation.startTime}">
+										<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+									</h:outputText>
+									<h:outputText value=" - " />
+									<h:outputText value="#{reservation.endTime}">
+										<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+									</h:outputText>
+								</div>
+							</p:column>
+							<p:column headerText="จุดเริ่มต้น" style="width:10%">
+								<h:outputText value="#{reservation.startingPoint}" />
+							</p:column>
+							<p:column headerText="สถานที่ไปปฏิบัติงาน" style="width:10%">
+								<h:outputText value="#{reservation.finishPoint}" />
+							</p:column>
+							<p:column headerText="ประเภทรถ" style="width:10%"
+								filterBy="#{reservation.carType.value}" filterMatchMode="exact"
+								filterOptions="#{requestManager.carTypeFilterOptions}">
+								<h:outputText value="#{reservation.carType.value}" />
+							</p:column>
+							<p:column headerText="สถานะ" style="width:10%"
+								filterBy="#{reservation.formStatus.value}"
+								filterMatchMode="exact"
+								filterOptions="#{requestManager.formStatusFilterOptions}">
+								<h:outputText value="#{reservation.formStatus.value}" />
+							</p:column>
+							<p:column style="text-align:center;width:15%">
+								<p:commandButton icon="ui-icon-search" title="ดูข้อมูลเพิ่มเติม"
+									update=":centerform:infodialog, :centerform:tablecontainer"
+									oncomplete="showInfoDialogRequest();blockListUI.hide()"
+									action="#{requestManager.createTravellerList()}"
+									onstart="blockListUI.show()" process="@this"
+									style="width:16px;height:16px">
+									<f:setPropertyActionListener value="#{reservation}"
+										target="#{requestManager.viewReservation}" />
+								</p:commandButton>
+								<p:commandButton title="แก้ไข" icon="ui-icon-pencil"
+									update=":centerform:inputgrid, :centerform:tablecontainer"
+									action="#{requestManager.reservationSelected}"
+									disabled="#{reservation.formStatus != 'REQUESTING' || sessionScope.userSession.staff.STAFFCODE != reservation.requester.STAFFCODE}"
+									onstart="blockInputUI.show()" oncomplete="blockInputUI.hide()"
+									process="@this" style="width:16px;height:16px;margin-left:3px">
+									<f:setPropertyActionListener
+										target="#{requestManager.reservation}" value="#{reservation}" />
+								</p:commandButton>
+								<p:commandButton title="ลบ" icon="ui-icon-trash"
+									onclick="showDeleteDialogRequest()"
+									disabled="#{reservation.formStatus != 'REQUESTING' || sessionScope.userSession.staff.STAFFCODE != reservation.requester.STAFFCODE}"
+									process="@this" update=":centerform:tablecontainer"
+									style="width:16px;height:16px;margin-left:3px">
+									<f:setPropertyActionListener
+										target="#{requestManager.deletedReservation}"
+										value="#{reservation}" />
+								</p:commandButton>
+								<p:commandButton title="ยกเลิกใบขอรถ" icon="ui-icon-cancel"
+									onclick="showcancelReservationConfirmRequest()"
+									style="width:16px;height:16px;margin-left:3px" process="@this"
+									update=":centerform:tablecontainer"
+									disabled="#{reservation.formStatus == 'REQUESTING' || reservation.formStatus == 'FINISHED' || reservation.formStatus == 'NO_TRAN_APPROVE' || reservation.formStatus == 'CANCELED' || sessionScope.userSession.staff.STAFFCODE != reservation.requester.STAFFCODE}">
+									<f:setPropertyActionListener
+										target="#{requestManager.canceledReservation}"
+										value="#{reservation}" />
+								</p:commandButton>
+								<h:commandLink title="พิมพ์ใบขอใช้รถ"
+									style="margin-left:5px;text-decoration:none"
+									action="#{requestManager.printReport()}" target="_blank"
+									rendered="#{reservation.carType == 'TAXI' and (reservation.formStatus == 'CAR_ASSIGNED' || reservation.formStatus == 'FINISHED') and (sessionScope.userSession.staff.STAFFCODE == reservation.requester.STAFFCODE)}">
+									<h:graphicImage value="../resources/images/print.png"
+										style="width:16px;height:16px" />
+									<f:setPropertyActionListener
+										target="#{requestManager.viewReservation}"
+										value="#{reservation}" />
+								</h:commandLink>
+							</p:column>
+						</p:dataTable>
+					</h:panelGroup>
+				</p:fieldset>
+			</p:panel>
+			<p:confirmDialog
+				message="ใบขอรถใบนี้จะถูกลบ คุณต้องการดำเนินการต่อหรือไม่ ?"
+				widgetVar="deleteReservationConfirmRequest" header="ลบใบขอรถ"
+				closable="false">
+				<p:commandButton value="ใช่" update="reservationlist"
+					oncomplete="deleteReservationConfirmRequest.hide()"
+					action="#{requestManager.deleteReservation}" id="deletebtn"
+					process="@this" />
+				<p:commandButton value="ยกเลิก" process="@this"
+					onclick="deleteReservationConfirmRequest.hide()"
+					action="#{requestManager.deleteCancleButtonClicked()}"
+					update="tablecontainer" />
+			</p:confirmDialog>
+			<p:dialog
+				header="ข้อมูลใบจองรถเลขที่ #{requestManager.viewReservation.requestNumber}"
+				widgetVar="infoDialogRequest" id="infodialog" modal="false"
+				showEffect="clip" hideEffect="clip" resizable="false">
+				<p:ajax event="close" update="tablecontainer"
+					listener="#{requestManager.infoDialogClosed()}" />
+				<h:inputText style="width:0px;height:0px;border:none" />
+				<div style="float: left">
+					<p:fieldset legend="ข้อมูลผู้ขอรถ">
+						<h:panelGrid columns="2">
+							<h:outputText value="ชื่อผู้ขอ:" />
+							<h:outputText value="#{requestManager.viewReservation.requester}" />
+							<h:outputText value="ฝ่าย/กอง:" />
+							<h:outputText
+								value="#{requestManager.viewReservation.requester.employeeInfos[0].DEPPERSON}" />
+							<h:outputText value="โทรศัพท์:" />
+							<h:outputText
+								value="#{requestManager.viewReservation.internalPhone}" />
+						</h:panelGrid>
+					</p:fieldset>
+					<p:spacer height="10" />
+					<p:fieldset legend="วันที่และเวลา">
+						<h:panelGrid columns="2">
+							<h:outputText value="วันที่ต้องการใช้รถ:" />
+							<h:outputText value="#{requestManager.viewReservation.endDate}">
+								<f:convertDateTime pattern="d/M/yyyy" timeZone="GMT+7" />
+							</h:outputText>
+							<h:outputText value="ตั้งแต่เวลา" />
+							<h:outputText value="#{requestManager.viewReservation.startTime}">
+								<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+							</h:outputText>
+							<h:outputText value="ถึงเวลา:" />
+							<h:outputText value="#{requestManager.viewReservation.endTime}">
+								<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+							</h:outputText>
+						</h:panelGrid>
+					</p:fieldset>
+					<p:spacer height="10" />
+					<p:fieldset legend="หมายเหตุ (ผอ.ต้นสังกัด)"
+						rendered="#{requestManager.viewReservation.directorRemark != null}">
+						<h:panelGrid columns="2" styleClass="verticaltop">
+							<h:outputText value="หมายเหตุ:" />
+							<p:inputTextarea
+								value="#{requestManager.viewReservation.directorRemark}"
+								style="border:none;background:#f2f1f1;padding:0px;box-shadow:none;width:180px;height:80px"
+								autoResize="false" />
+						</h:panelGrid>
+					</p:fieldset>
+					<p:spacer height="10" />
+					<p:fieldset legend="หมายเหตุ (ผอ.กองบริการ)"
+						rendered="#{requestManager.viewReservation.serviceRemark != null}">
+						<h:panelGrid columns="2" styleClass="verticaltop">
+							<h:outputText value="หมายเหตุ:" />
+							<p:inputTextarea
+								value="#{requestManager.viewReservation.serviceRemark}"
+								style="border:none;background:#f2f1f1;padding:0px;box-shadow:none;width:180px;height:80px"
+								autoResize="false" />
+						</h:panelGrid>
+					</p:fieldset>
+				</div>
+				<div style="float: left; margin-left: 5px">
+					<p:fieldset legend="ข้อมูลใบจอง">
+						<h:panelGrid columns="2" styleClass="verticaltop">
+							<h:outputText value="เลขที่ใบจอง:" />
+							<h:outputText
+								value="#{requestManager.viewReservation.requestNumber}" />
+							<h:outputText value="เอกสารอ้างอิง:" />
+							<h:outputText
+								value="#{requestManager.viewReservation.refDocument}" />
+							<h:outputText value="สถานะ:" />
+							<h:outputText
+								value="#{requestManager.viewReservation.formStatus.value}" />
+							<h:outputText value="วันที่สร้าง:" />
+							<h:outputText
+								value="#{requestManager.viewReservation.createDate}">
+								<f:convertDateTime pattern="d/M/yyyy" timeZone="GMT+7" />
+							</h:outputText>
+							<h:outputText value="ประเภทรถ:" />
+							<h:outputText
+								value="#{requestManager.viewReservation.carType.value}" />
+							<h:outputText value="เที่ยวเดินรถ:" />
+							<h:outputText
+								value="#{requestManager.viewReservation.travelType.value}" />
+							<h:outputText value="วัตถุประสงค์:" />
+							<h:outputText
+								value="#{requestManager.viewReservation.purpose.name}" />
+							<h:outputText value="จุดขึ้นรถ:" />
+							<h:outputText
+								value="#{requestManager.viewReservation.parkingLocation.name}" />
+							<h:outputText value="จุดเริ่มต้น:" />
+							<h:outputText
+								value="#{requestManager.viewReservation.startingPoint}" />
+							<h:outputText value="สถานที่ไปปฏิบัติงาน:" />
+							<h:outputText
+								value="#{requestManager.viewReservation.finishPoint}" />
+							<h:outputText value="จำนวนรถ:" />
+							<h:outputText
+								value="#{requestManager.viewReservation.numberOfCars}" />
+							<h:outputText value="จำนวนผู้โดยสาร:" />
+							<h:outputText
+								value="#{requestManager.viewReservation.numberOfTraveller}" />
+							<h:outputText value="ผู้ร่วมเดินทาง:"
+								rendered="#{fn:length(requestManager.travellerList) != 0}" />
+							<ui:repeat var="name" value="#{requestManager.travellerList}"
+								rendered="#{fn:length(requestManager.travellerList) != 0}">
+								<h:outputText value="#{name}" />
+								<br />
+							</ui:repeat>
+							<h:outputText value="รายละเอียด:"
+								rendered="#{requestManager.viewReservation.remark != null}" />
+							<p:inputTextarea value="#{requestManager.viewReservation.remark}"
+								rendered="#{requestManager.viewReservation.remark != null}"
+								style="border:none;background:#ffffff;padding:0px;box-shadow:none;width:180px;height:80px"
+								autoResize="false" />
+						</h:panelGrid>
+					</p:fieldset>
+				</div>
+				<div style="float: left; margin-left: 5px">
+					<p:fieldset legend="ข้อมูลรถ"
+						rendered="#{requestManager.viewReservation.carType == 'VAN' and requestManager.viewReservation.formStatus == 'CAR_ASSIGNED'}">
+						<p:dataList styleClass="datalist-noborder"
+							value="#{requestManager.viewReservation.listReservationItem}"
+							var="item" itemType="none" type="definition">
+							<h:outputText value="รอบเวลา: " />
+							<h:outputText value="#{item.startTime}">
+								<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+							</h:outputText>
+							<h:outputText value=" - " />
+							<h:outputText value="#{item.endTime}">
+								<f:convertDateTime pattern="HH:mm" timeZone="GMT+7" />
+							</h:outputText>
+							<f:facet name="description">
+								<p:dataList value="#{item.listQueue}" var="queue"
+									itemType="none" type="definition">
+									<f:facet name="description">
+										<h:outputText value="" />
+									</f:facet>
+									<h:panelGrid columns="2">
+										<h:outputText value="ชื่อรถ:" />
+										<h:outputText value="#{queue.car.name}" />
+										<h:outputText value="เลขทะเบียน:" />
+										<h:outputText value="#{queue.car.registerNumber}" />
+										<h:outputText value="ผู้ขับ:" />
+										<h:outputText value="#{queue.driver}" />
+										<h:outputText value="เบอร์โทรศัพท์:" />
+										<h:outputText value="#{queue.driver.phoneNumber}" />
+									</h:panelGrid>
+									<p:separator />
+								</p:dataList>
+							</f:facet>
+						</p:dataList>
+					</p:fieldset>
+				</div>
+			</p:dialog>
+			<p:confirmDialog
+				message="ไม่มีรถตู้บริษัทฯว่างตามวันและเวลาที่ท่านระบุ กรุณาเลือกรถประเภทอื่นหรือกด 'ยกเลิก' เพื่อเปลี่ยนวันและเวลาที่จะเดินทาง"
+				widgetVar="notAvailableDialog" closable="false" header="ไม่มีรถว่าง">
+				<h:panelGrid columns="2" cellpadding="3" id="confirmradiogrid">
+					<h:outputText value="ประเภทรถ:" />
+					<p:selectOneRadio value="#{requestManager.selectedCarTypeNoVan}">
+						<f:selectItems
+							value="#{requestManager.carTypeNoVanSelectItemList}" />
+					</p:selectOneRadio>
+				</h:panelGrid>
+				<h:panelGroup id="confirmalertmessage">
+					<h:outputText
+						value="*กรณีจัดจ้าง บริษัทมีค่าใช้จ่ายประมาณ 2,000 บาท กรณียกเลิกกรุณาแจ้งล่วงหน้าอย่างน้อย 1 วันทำการ"
+						style="color:red"
+						rendered="#{requestManager.reservation.purpose.prior == true}" />
+				</h:panelGroup>
+				<p:separator />
+				<p:commandButton value="ตกลง"
+					action="#{requestManager.saveReservation('novan')}"
+					update="inputgrid, reservationlist"
+					oncomplete="notAvailableDialog.hide()" />
+				<p:commandButton value="ยกเลิก" onclick="notAvailableDialog.hide()"
+					type="button" />
+			</p:confirmDialog>
+			<p:confirmDialog
+				message="ใบขอรถใบนี้จะถูกยกเลิก คุณต้องการดำเนินการต่อหรือไม่ ?"
+				widgetVar="cancelReservationConfirmRequest" header="ยกเลิกใบขอรถ"
+				closable="false">
+				<p:commandButton value="ใช่" update="reservationlist"
+					oncomplete="cancelReservationConfirmRequest.hide()"
+					action="#{requestManager.calcelReservation()}" id="cancelbtn"
+					process="@this" />
+				<p:commandButton value="ยกเลิก" process="@this"
+					onclick="cancelReservationConfirmRequest.hide()"
+					action="#{requestManager.cancleButtonClicked()}"
+					update="tablecontainer" />
+			</p:confirmDialog>
+		</ui:define>
+	</ui:composition>
+</body>
+</html>

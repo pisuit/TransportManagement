@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+
+<h:head></h:head>
+<body>
+	<ui:composition template="mainlayout.xhtml">
+		<ui:define name="content">
+			<p:blockUI trigger=":centerform:refreshbtn" block="inputpanel">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI trigger=":centerform:savebtn" block="inputpanel">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:blockUI widgetVar="blockPanel" block="inputpanel">
+				<h:outputText value="LOADING" />
+				<br />
+				<h:graphicImage value="../resources/images/ajax-loading.gif" />
+			</p:blockUI>
+			<p:panel header="ข้อมูลบริษัทคู่สัญญา">
+				<p:fieldset legend="จัดการข้อมูลบริษัทคู่สัญญา" toggleable="true">
+					<h:panelGroup id="tablecontainer">
+						<p:dataTable style="width:60%;float:left"
+							value="#{adminCompanyManager.companyList}" var="company"
+							paginator="true" paginatorAlwaysVisible="false"
+							paginatorPosition="bottom" id="companylist" rows="10"
+							rowIndexVar="rowNo"
+							rowStyleClass="#{company.id eq adminCompanyManager.editCompany.id ? 'rowhilight':null}">
+							<p:column>
+								<h:outputText value="#{rowNo+1}" />
+							</p:column>
+							<p:column headerText="ชื่อบริษัท" style="width:20%">
+								<h:outputText value="#{company.name}" />
+							</p:column>
+							<p:column headerText="ชื่อผู้จดทะเบียน" style="width:20%">
+								<h:outputText value="#{company}" />
+							</p:column>
+							<p:column headerText="เบอร์โทรศัพท์" style="width:5%">
+								<h:outputText value="#{company.phoneNumber}" />
+							</p:column>
+							<p:column headerText="ชื่อสัญญา" style="width:40%">
+								<h:outputText value="#{company.contract.name}" />
+							</p:column>
+							<p:column style="text-align:center;width:15%">
+								<p:commandButton title="แก้ไข" icon="ui-icon-pencil"
+									update=":centerform:inputgrid, :centerform:tablecontainer"
+									onstart="blockPanel.show()" oncomplete="blockPanel.hide()"
+									action="#{adminCompanyManager.contractSelected()}"
+									process="@this" style="width:16px;height:16px">
+									<f:setPropertyActionListener
+										target="#{adminCompanyManager.editCompany}" value="#{company}" />
+								</p:commandButton>
+								<p:commandButton title="ลบ" icon="ui-icon-trash"
+									style="margin-left:3px;width:16px;height:16px"
+									update=":centerform:tablecontainer"
+									oncomplete="showDeleteDialogAdminCompany()" process="@this">
+									<f:setPropertyActionListener
+										target="#{adminCompanyManager.editCompany}" value="#{company}" />
+								</p:commandButton>
+							</p:column>
+						</p:dataTable>
+					</h:panelGroup>
+					<p:panel header="ข้อมูลบริษัท"
+						style="width:35%;float:left;margin-left:30px" id="inputpanel">
+						<h:panelGrid columns="2" cellpadding="3" id="inputgrid">
+							<h:outputText value="ชื่อบริษัท:" />
+							<p:inputText value="#{adminCompanyManager.editCompany.name}" size="40"/>
+							<h:outputText value="เบอร์โทรศัพท์:" />
+							<p:inputText
+								value="#{adminCompanyManager.editCompany.phoneNumber}" size="40"/>
+							<h:outputText value="ชื่อผู้จดทะเบียน:" />
+							<p:inputText
+								value="#{adminCompanyManager.editCompany.authorityFirstName}" size="40"/>
+							<h:outputText value="นามสกุลผู้จดทะเบียน:" />
+							<p:inputText
+								value="#{adminCompanyManager.editCompany.authorityLastName}" size="40"/>
+							<h:outputText value="สัญญา:" />
+							<p:selectOneMenu value="#{adminCompanyManager.selectedContract}"
+								style="width:210px">
+								<f:selectItems
+									value="#{adminCompanyManager.contractSelectItemList}" />
+							</p:selectOneMenu>
+							<h:outputText value="ที่อยู่:" />
+							<p:inputTextarea
+								value="#{adminCompanyManager.editCompany.address}"
+								autoResize="false" style="width:200px;height:80px" />
+						</h:panelGrid>
+						<p:separator />
+						<h:panelGrid columns="2" width="160">
+							<p:commandButton value="บันทึก" icon="ui-icon-disk"
+								action="#{adminCompanyManager.validateInput()}"
+								update="companylist inputgrid" id="savebtn" />
+							<p:commandButton value="ล้างค่า" icon="ui-icon-refresh"
+								action="#{adminCompanyManager.refreshData()}"
+								update="inputgrid, tablecontainer" id="refreshbtn"
+								process="@this" />
+						</h:panelGrid>
+					</p:panel>
+				</p:fieldset>
+			</p:panel>
+			<p:confirmDialog
+				message="บริษัทนี้จะถูกลบ คุณต้องการดำเนินการต่อหรือไม่ ?"
+				widgetVar="deleteCompanyDialog" header="ลบบริษัท" closable="false">
+				<p:commandButton value="ใช่" update="companylist, inputgrid"
+					oncomplete="deleteCompanyDialog.hide()"
+					action="#{adminCompanyManager.deleteComapny()}" id="deletebtn"
+					process="@this" />
+				<p:commandButton value="ยกเลิก" process="@this"
+					update="tablecontainer"
+					action="#{adminCompanyManager.deleteDialogClosed()}"
+					onclick="deleteCompanyDialog.hide()" />
+			</p:confirmDialog>
+		</ui:define>
+	</ui:composition>
+</body>
+</html>
